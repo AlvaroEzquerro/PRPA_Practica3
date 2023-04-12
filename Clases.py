@@ -26,8 +26,9 @@ POSICIONES = [(400,300), (1500,300), (950,750)]
 class Ciudad():
     def __init__(self, pos, cid, prop = None):
         self.pos = pos
-        self.propietario = prop
         self.id = cid
+        
+        self.propietario = prop
         self.poblacion = 20 if self.propietario == None else 5
         self.nivel = 1
         self.prod = 1

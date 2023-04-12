@@ -2,90 +2,42 @@ from multiprocessing.connection import Client
 import traceback
 import pygame
 import sys, os
+from Clases import *
 
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-BLUE = (0, 0, 255)
-YELLOW = (255,255,0)
-GREEN = (0,255,0)
-X = 0
-Y = 1
-SIZE = (700, 525)
-
-LEFT_PLAYER = 0
-RIGHT_PLAYER = 1
-PLAYER_COLOR = [GREEN, YELLOW]
-PLAYER_HEIGHT = 60
-PLAYER_WIDTH = 10
-
-BALL_COLOR = WHITE
-BALL_SIZE = 10
-FPS = 60
-
-
-SIDES = ["left", "right"]
-SIDESSTR = ["left", "right"]
+# La sala va a ser la que haga todos los calculos, por lo que este archivo solo tiene que leer la informacion, actulizar su propia informacion y hacer el display de cada jugador individual, y mandar los inputs
 
 class Player():
-    def __init__(self, side):
-        self.side = side
-        self.pos = [None, None]
-
-    def get_pos(self):
-        return self.pos
-
-    def get_side(self):
-        return self.side
-
-    def set_pos(self, pos):
-        self.pos = pos
-
-    def __str__(self):
-        return f"P<{SIDES[self.side], self.pos}>"
-
-class Ball():
-    def __init__(self):
-        self.pos=[ None, None ]
-
-    def get_pos(self):
-        return self.pos
-
-    def set_pos(self, pos):
-        self.pos = pos
-
-    def __str__(self):
-        return f"B<{self.pos}>"
-
-
+    def __init__(self, n_player):
+        self.n_player = n_player
+        self.ciudades = [Ciudad(POSICIONES[n_player-1], n_player, n_player)]
+        self.capital = self.ciudades[0]
+    
+    # def update(self): para mejorar la optimizacion? 
+        
+    
 class Game():
-    def __init__(self):
-        self.players = [Player(i) for i in range(2)]
-        self.ball = Ball()
-        self.score = [0,0]
+    def __init__(self, gameinfo):
+        self.players = []
+        self.ciudades = []
+        self.moves = []
         self.running = True
+        self.update(gameinfo)
+    
+    def update_ciudades(info):
+        for i, c in enumerate(self.ciudades):
+            c.update(info[i+1])
 
-    def get_player(self, side):
-        return self.players[side]
-
-    def set_pos_player(self, side, pos):
-        self.players[side].set_pos(pos)
-
-
-    def get_ball(self):
-        return self.ball
-
-    def set_ball_pos(self, pos):
-        self.ball.set_pos(pos)
-
-    def get_score(self):
-        return self.score
-
-    def set_score(self, score):
-        self.score = score
-
+    def update_players(info):
+        for i, c in enumerate(self.ciudades):
+            c.update(info[i+1])
+    
+    def update_moves(info):
+        for i, c in enumerate(self.ciudades):
+            c.update(info[i])
 
     def update(self, gameinfo):
+        for c in self.ciudades:
+            c.update(gameinfo`)
         self.set_pos_player(LEFT_PLAYER, gameinfo['pos_left_player'])
         self.set_pos_player(RIGHT_PLAYER, gameinfo['pos_right_player'])
         self.set_ball_pos(gameinfo['pos_ball'])
@@ -100,42 +52,6 @@ class Game():
 
     def __str__(self):
         return f"G<{self.players[RIGHT_PLAYER]}:{self.players[LEFT_PLAYER]}:{self.ball}>"
-
-
-class Paddle(pygame.sprite.Sprite):
-    def __init__(self, player):
-      super().__init__()
-      self.image = pygame.Surface([PLAYER_WIDTH, PLAYER_HEIGHT])
-      self.image.fill(BLACK)
-      self.image.set_colorkey(BLACK)#drawing the paddle
-      self.player = player
-      color = PLAYER_COLOR[self.player.get_side()]
-      pygame.draw.rect(self.image, color, [0,0,PLAYER_WIDTH, PLAYER_HEIGHT])
-      self.rect = self.image.get_rect()
-      self.update()
-
-    def update(self):
-        pos = self.player.get_pos()
-        self.rect.centerx, self.rect.centery = pos
-
-    def __str__(self):
-        return f"S<{self.player}>"
-
-
-class BallSprite(pygame.sprite.Sprite):
-    def __init__(self, ball):
-        super().__init__()
-        self.ball = ball
-        self.image = pygame.Surface((BALL_SIZE, BALL_SIZE))
-        self.image.fill(BLACK)
-        self.image.set_colorkey(BLACK)
-        pygame.draw.rect(self.image, BALL_COLOR, [0, 0, BALL_SIZE, BALL_SIZE])
-        self.rect = self.image.get_rect()
-        self.update()
-
-    def update(self):
-        pos = self.ball.get_pos()
-        self.rect.centerx, self.rect.centery = pos
 
 
 
