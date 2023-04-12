@@ -4,140 +4,89 @@ import traceback
 import sys
 from Clases import *
 
-LEFT_PLAYER = 0
-RIGHT_PLAYER = 1
-SIDESSTR = ["left", "right"]
-SIZE = (700, 525)
-X=0
-Y=1
-DELTA = 30
 
-# =============================================================================
-# class Player():
-#     def __init__(self, side):
-#         self.side = side
-#         if side == LEFT_PLAYER:
-#             self.pos = [5, SIZE[Y]//2]
-#         else:
-#             self.pos = [SIZE[X] - 5, SIZE[Y]//2]
-# 
-#     def get_pos(self):
-#         return self.pos
-# 
-#     def get_side(self):
-#         return self.side
-# 
-#     def moveDown(self):
-#         self.pos[Y] += DELTA
-#         if self.pos[Y] > SIZE[Y]:
-#             self.pos[Y] = SIZE[Y]
-# 
-#     def moveUp(self):
-#         self.pos[Y] -= DELTA
-#         if self.pos[Y] < 0:
-#             self.pos[Y] = 0
-# 
-#     def __str__(self):
-#         return f"P<{SIDESSTR[self.side]}, {self.pos}>"
-# 
-# class Ball():
-#     def __init__(self, velocity):
-#         self.pos=[ SIZE[X]//2, SIZE[Y]//2 ]
-#         self.velocity = velocity
-# 
-#     def get_pos(self):
-#         return self.pos
-# 
-#     def update(self):
-#         self.pos[X] += self.velocity[X]
-#         self.pos[Y] += self.velocity[Y]
-# 
-#     def bounce(self, AXIS):
-#         self.velocity[AXIS] = -self.velocity[AXIS]
-# 
-#     def collide_player(self, side):
-#         self.bounce(X)
-#         self.pos[X] += 3*self.velocity[X]
-#         self.pos[Y] += 3*self.velocity[Y]
-# 
-# 
-#     def __str__(self):
-#         return f"B<{self.pos, self.velocity}>"
-# 
-# 
-# class Game():
-#     def __init__(self, manager):
-#         self.players = manager.list( [Player(LEFT_PLAYER), Player(RIGHT_PLAYER)] )
-#         self.ball = manager.list( [ Ball([-2,2]) ] )
-#         self.score = manager.list( [0,0] )
-#         self.running = Value('i', 1) # 1 running
-#         self.lock = Lock()
-# 
-#     def get_player(self, side):
-#         return self.players[side]
-# 
-#     def get_ball(self):
-#         return self.ball[0]
-# 
-#     def get_score(self):
-#         return list(self.score)
-# 
-#     def is_running(self):
-#         return self.running.value == 1
-# 
-#     def stop(self):
-#         self.running.value = 0
-# 
-#     def moveUp(self, player):
-#         self.lock.acquire()
-#         p = self.players[player]
-#         p.moveUp()
-#         self.players[player] = p
-#         self.lock.release()
-# 
-#     def moveDown(self, player):
-#         self.lock.acquire()
-#         p = self.players[player]
-#         p.moveDown()
-#         self.players[player] = p
-#         self.lock.release()
-# 
-#     def ball_collide(self, player):
-#         self.lock.acquire()
-#         ball = self.ball[0]
-#         ball.collide_player(player)
-#         self.ball[0] = ball
-#         self.lock.release()
-# 
-#     def get_info(self):
-#         info = {
-#             'pos_left_player': self.players[LEFT_PLAYER].get_pos(),
-#             'pos_right_player': self.players[RIGHT_PLAYER].get_pos(),
-#             'pos_ball': self.ball[0].get_pos(),
-#             'score': list(self.score),
-#             'is_running': self.running.value == 1
-#         }
-#         return info
-# 
-#     def move_ball(self):
-#         self.lock.acquire()
-#         ball = self.ball[0]
-#         ball.update()
-#         pos = ball.get_pos()
-#         if pos[Y]<0 or pos[Y]>SIZE[Y]:
-#             ball.bounce(Y)
-#         if pos[X]>SIZE[X]:
-#             self.score[LEFT_PLAYER] += 1
-#             ball.bounce(X)
-#         elif pos[X]<0:
-#             self.score[RIGHT_PLAYER] += 1
-#             ball.bounce(X)
-#         self.ball[0]=ball
-#         self.lock.release()
-# 
-# 
-#     def __str__(self):
-#         return f"G<{self.players[RIGHT_PLAYER]}:{self.players[LEFT_PLAYER]}:{self.ball[0]}:{self.running.value}>"
+class Player():
+    def __init__(self, n_player):
+        self.n_player = n_player
+        self.ciudades = [Ciudad(POSICIONES[n_player-1], n_player, n_player)]
+        self.capital = self.ciudades[0]
+        # self.game = game
+
+    def mover(self, objetivo):
+        self.capital.mover(objetivo)
+    
+    def subirNivel(self):
+        self.capital.subirNivel()
+    
+    def cambiarCapital(self,c):
+        if c.prop == n_player:
+            self.capital = c
+            
+class Game():
+    def __init__(self, manager):
+        self.players = manager.list( [Player(i+1) for i in range(3)] )
+        self.ciudades = manager.list( [Ciudad(POS[i], i+1) for i in range(len(POS))] )
+        self.moves = manager.list( [] )
+        self.running = Value('i', 1)
+        self.lock = Lock()
+
+    def is_running(self):
+        return self.running.value == 1
+
+    def stop(self):
+        self.running.value = 0
+
+    def mover(self, n_player, objetivo):
+        self.lock.acquire()
+        p.mover(objetivo)
+        self.moves.append( _ALGO_ )
+        self.lock.release()
+    
+    ###########################
+    
+    def moveDown(self, player):
+        self.lock.acquire()
+        p = self.players[player]
+        p.moveDown()
+        self.players[player] = p
+        self.lock.release()
+
+    def ball_collide(self, player):
+        self.lock.acquire()
+        ball = self.ball[0]
+        ball.collide_player(player)
+        self.ball[0] = ball
+        self.lock.release()
+
+    def get_info(self):
+        info = {
+            'pos_left_player': self.players[LEFT_PLAYER].get_pos(),
+            'pos_right_player': self.players[RIGHT_PLAYER].get_pos(),
+            'pos_ball': self.ball[0].get_pos(),
+            'score': list(self.score),
+            'is_running': self.running.value == 1
+        }
+        return info
+
+    def move_ball(self):
+        self.lock.acquire()
+        ball = self.ball[0]
+        ball.update()
+        pos = ball.get_pos()
+        if pos[Y]<0 or pos[Y]>SIZE[Y]:
+            ball.bounce(Y)
+        if pos[X]>SIZE[X]:
+            self.score[LEFT_PLAYER] += 1
+            ball.bounce(X)
+        elif pos[X]<0:
+            self.score[RIGHT_PLAYER] += 1
+            ball.bounce(X)
+        self.ball[0]=ball
+        self.lock.release()
+
+
+    def __str__(self):
+        return f"G<{self.players[RIGHT_PLAYER]}:{self.players[LEFT_PLAYER]}:{self.ball[0]}:{self.running.value}>"
 # 
 # =============================================================================
 def player(side, conn, game):

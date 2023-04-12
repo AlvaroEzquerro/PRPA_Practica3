@@ -35,7 +35,8 @@ class Ciudad():
         self.max_cap = 20
     
     def update(self):
-        if self.propietario != None:
+        # La capacidad maxima se puede exceder si llegan refuerzos, pero a partir de ese punto, la ciudad no produce nuevos soldados
+        if self.propietario != None and self.poblacion < self.max_cap:
             self.poblacion += self.prod
             if self.poblacion > self.max_cap: self.poblacion = self.max_cap 
 
@@ -51,7 +52,7 @@ class Ciudad():
             self.max_cap = maxCapNivel[self.nivel]
 
 # Movimiento para que incluya los apoyos de un jugador a si mismo
-class Ataque():
+class Movimiento():
     
     def __init__(self, ciudad1, ciudad2):
         self.c1 = ciudad1
@@ -59,25 +60,23 @@ class Ataque():
         self.pos = ciudad1.pos
         self.direccion = np.array(ciudad2.c.pos) - np.array(ciudad1.c.pos)
         self.vel = 5*self.direccion/np.linalg.norm(self.direccion)
-        self.n_atacantes = 5
+        self.n_tropas = 5
         
-        self.c1.c.poblacion -= self.n_atacantes
+        self.c1.c.poblacion -= self.n_tropas
         
     def move(self):
         self.pos += self.vel
 
-    def get_pos(self):
-        return self.pos
-
-    def update(self):
-        self.pos += self.velocity * self.direccion
-
     def llegada(self):
-        self.c2.poblacion -= self.n_atacantes
         self.vel = [0,0]
-        if self.c2.poblacion < 1:
-            self.c2.propietario = self.c1.c.propietario
-            self.c2.poblacion *= -1
+        # self.desaparecer
+        if self.c1.prop == self.c2.prop:
+            self.c2.poblacion += self.n_tropas
+        else:
+            self.c2.poblacion += self.n_tropas
+            if self.c2.poblacion < 1:
+                self.c2.propietario = self.c1.propietario
+                self.c2.poblacion *= -1
 
 
 # Clases de pygame
@@ -99,7 +98,7 @@ class SpriteCiudad(pygame.sprite.Sprite):
         self.ventana.blit(self.pob, np.array(self.rect.center) + np.array((0,200)))
         self.ventana.blit(self.nivel, np.array(self.rect.center) + np.array((0,-200)))
         self.ventana.blit(self.prop, np.array(self.rect.center) + np.array((0,-150)))
-        pygame.draw.rect(self.image)
+        # pygame.draw.rect(self.image)
         
     def update(self):
         self.ciudad.update()
@@ -111,33 +110,26 @@ class SpriteCiudad(pygame.sprite.Sprite):
         self.ventana.blit(self.nivel, np.array(self.rect.center) + np.array((0,-200)))
         self.ventana.blit(self.prop, np.array(self.rect.center) + np.array((0,-150)))        
             
-    def atacar(self, c2):
+    def mover(self, c2):
         if self.ciudad.poblacion >= 5:
-            self.display.sprites_ataques.add(SpriteAtaque(Ataque(self,c2)))
+            self.display.sprites_movimientos.add(SpriteMov(Movimiento(self,c2)))
     
         
-class SpriteAtaque(pygame.sprite.Sprite):
-    def __init__(self, ataque,display):
-        super(SpriteAtaque, self).__init__()
-        self.a = ataque
+class SpriteMov(pygame.sprite.Sprite):
+    def __init__(self, mov,display):
+        super(SpriteMov, self).__init__()
+        self.mov = mov
         self.display = display
         
         self.image = pygame.image.load('sword.png')
         self.rect = self.image.get_rect()
-        self.rect.center = ataque.pos
+        self.rect.center = mov.pos
         
     def update(self):
-        self.a.move()
-        self.rect.center = self.a.pos
-        # Aqui hay que gestionar lo de que elcollider por que por algun motivo, collidea mucho antes de lo que deberia. probablemente por el tamaño del png
-        if pygame.sprite.spritecollide(self, [self.a.c2], False):
-            self.vel = [0,0]
-            self.a.llegada()
+        self.mov.move()
+        self.rect.center = self.mov.pos
+        # Aqui hay que gestionar lo de que el collider por que por algun motivo, collidea mucho antes de lo que deberia. probablemente por el tamaño del png
+        if pygame.sprite.spritecollide(self, [self.mov.c2], False):
+            self.mov.llegada()
             self.display.sprites_ataques.remove(self)
 
-    def get_pos(self):
-        return self.pos
-
-    def update(self):
-        self.pos += self.velocity * self.direccion
-        

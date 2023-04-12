@@ -11,8 +11,10 @@ class Player():
         self.n_player = n_player
         self.ciudades = [Ciudad(POSICIONES[n_player-1], n_player, n_player)]
         self.capital = self.ciudades[0]
-    
-    # def update(self): para mejorar la optimizacion? 
+        # self.game = game
+        
+    def update(self, info):
+        self.ciudades = pass
         
     
 class Game():
