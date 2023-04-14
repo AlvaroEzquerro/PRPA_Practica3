@@ -89,10 +89,10 @@ class Game():
         return f"G<{self.players[RIGHT_PLAYER]}:{self.players[LEFT_PLAYER]}:{self.ball[0]}:{self.running.value}>"
 # 
 # =============================================================================
-def player(side, conn, game):
+def player(n_player, conn, game):
     try:
-        print(f"starting player {SIDESSTR[side]}:{game.get_info()}")
-        conn.send( (side, game.get_info()) )
+        print(f"starting player {n_player}:{game.get_info()}")
+        conn.send( (n_player, game.get_info()) )
         while game.is_running():
             command = ""
             while command != "next":
@@ -120,18 +120,19 @@ def main(ip_address):
     try:
         with Listener((ip_address, 6000),
                       authkey=b'secret password') as listener:
-            n_player = 0
-            players = [None, None]
+            n_players = 0
+            players = []
             game = Game(manager)
             while True:
                 print(f"accepting connection {n_player}")
                 conn = listener.accept()
                 players[n_player] = Process(target=player,
                                             args=(n_player, conn, game))
-                n_player += 1
-                if n_player == 2:
+                n_players += 1
+                if n_player == 3:
                     players[0].start()
                     players[1].start()
+                    players[2].start()
                     n_player = 0
                     players = [None, None]
                     game = Game(manager)

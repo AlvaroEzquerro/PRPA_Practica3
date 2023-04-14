@@ -116,12 +116,12 @@ def main(ip_address):
     try:
         with Client((ip_address, 6000), authkey=b'secret password') as conn:
             game = Game()
-            side,gameinfo = conn.recv()
-            print(f"I am playing {SIDESSTR[side]}")
+            n_player,gameinfo = conn.recv()
+            print(f"I am player {n_player}")
             game.update(gameinfo)
             display = Display(game)
             while game.is_running():
-                events = display.analyze_events(side)
+                events = display.analyze_events(n_player)
                 for ev in events:
                     conn.send(ev)
                     if ev == 'quit':
@@ -135,6 +135,21 @@ def main(ip_address):
         traceback.print_exc()
     finally:
         pygame.quit()
+
+if __name__ == "__main__":
+    ip_adress = "127.0.0.1"
+    if len(sys.argv)>1:
+        ip_address = sys.argv[1]
+    main(ip_addres)
+
+
+
+
+
+
+
+
+
 
 
 if __name__=="__main__":
