@@ -73,7 +73,7 @@ class Movimiento():
         if self.c1.prop == self.c2.prop:
             self.c2.poblacion += self.n_tropas
         else:
-            self.c2.poblacion += self.n_tropas
+            self.c2.poblacion -= self.n_tropas
             if self.c2.poblacion < 1:
                 self.c2.propietario = self.c1.propietario
                 self.c2.poblacion *= -1
