@@ -6,9 +6,9 @@ from Clases import *
 
 
 class Player():
-    def __init__(self, n_player):
-        self.n_player = n_player
-        self.ciudades = [Ciudad(POSICIONES[n_player-1], n_player, n_player)]
+    def __init__(self, pid):
+        self.pid = pid
+        self.ciudades = [Ciudad(POSICIONES[pid-1], pid, pid)]
         self.capital = self.ciudades[0]
         # self.game = game
 
@@ -19,7 +19,7 @@ class Player():
         self.capital.subirNivel()
     
     def cambiarCapital(self,c):
-        if c.prop == n_player:
+        if c.prop == pid:
             self.capital = c
             
 class Game():
@@ -36,7 +36,7 @@ class Game():
     def stop(self):
         self.running.value = 0
 
-    def mover(self, n_player, objetivo):
+    def mover(self, pid, objetivo):
         self.lock.acquire()
         p.mover(objetivo)
         self.moves.append( _ALGO_ )
@@ -89,10 +89,10 @@ class Game():
         return f"G<{self.players[RIGHT_PLAYER]}:{self.players[LEFT_PLAYER]}:{self.ball[0]}:{self.running.value}>"
 # 
 # =============================================================================
-def player(n_player, conn, game):
+def player(pid, conn, game):
     try:
-        print(f"starting player {n_player}:{game.get_info()}")
-        conn.send( (n_player, game.get_info()) )
+        print(f"starting player {pid}:{game.get_info()}")
+        conn.send( (pid, game.get_info()) )
         while game.is_running():
             command = ""
             while command != "next":
@@ -120,20 +120,20 @@ def main(ip_address):
     try:
         with Listener((ip_address, 6000),
                       authkey=b'secret password') as listener:
-            n_players = 0
+            pids = 0
             players = []
             game = Game(manager)
             while True:
-                print(f"accepting connection {n_player}")
+                print(f"accepting connection {pid}")
                 conn = listener.accept()
-                players[n_player] = Process(target=player,
-                                            args=(n_player, conn, game))
-                n_players += 1
-                if n_player == 3:
+                players[pid] = Process(target=player,
+                                            args=(pid, conn, game))
+                pids += 1
+                if pid == 3:
                     players[0].start()
                     players[1].start()
                     players[2].start()
-                    n_player = 0
+                    pid = 0
                     players = [None, None]
                     game = Game(manager)
 

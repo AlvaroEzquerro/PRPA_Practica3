@@ -7,9 +7,9 @@ from Clases import *
 # La sala va a ser la que haga todos los calculos, por lo que este archivo solo tiene que leer la informacion, actulizar su propia informacion y hacer el display de cada jugador individual, y mandar los inputs
 
 class Player():
-    def __init__(self, n_player):
-        self.n_player = n_player
-        self.ciudades = [Ciudad(POSICIONES[n_player-1], n_player, n_player)]
+    def __init__(self, pid):
+        self.pid = pid
+        self.ciudades = [Ciudad(POSICIONES[pid-1], pid, pid)]
         self.capital = self.ciudades[0]
         # self.game = game
         
@@ -116,12 +116,12 @@ def main(ip_address):
     try:
         with Client((ip_address, 6000), authkey=b'secret password') as conn:
             game = Game()
-            n_player,gameinfo = conn.recv()
-            print(f"I am player {n_player}")
+            pid,gameinfo = conn.recv()
+            print(f"I am player {pid}")
             game.update(gameinfo)
             display = Display(game)
             while game.is_running():
-                events = display.analyze_events(n_player)
+                events = display.analyze_events(pid)
                 for ev in events:
                     conn.send(ev)
                     if ev == 'quit':
