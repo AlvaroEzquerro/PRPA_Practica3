@@ -28,15 +28,18 @@ class Ciudad():
         self.pos = pos
         self.id = cid
         
-        self.propietario = prop
-        self.poblacion = 20 if self.propietario == None else 5
+        self.prop = prop
+        self.poblacion = 20 if self.prop == None else 5
         self.nivel = 1
         self.prod = 1
         self.max_cap = 20
-    
+        
+    def getPoblacion(self):
+    	return int(self.poblacion)
+    	
     def update(self):
         # La capacidad maxima se puede exceder si llegan refuerzos, pero a partir de ese punto, la ciudad no produce nuevos soldados
-        if self.propietario != None and self.poblacion < self.max_cap:
+        if self.prop != None and self.poblacion < self.max_cap:
             self.poblacion += self.prod
             if self.poblacion > self.max_cap: self.poblacion = self.max_cap 
 
@@ -75,7 +78,7 @@ class Movimiento():
         else:
             self.c2.poblacion -= self.n_tropas
             if self.c2.poblacion < 1:
-                self.c2.propietario = self.c1.propietario
+                self.c2.prop = self.c1.prop
                 self.c2.poblacion *= -1
 
 
@@ -94,7 +97,7 @@ class SpriteCiudad(pygame.sprite.Sprite):
         
         self.pob = self.font.render(f"{int(np.floor( self.ciudad.poblacion ))}", 1, RED)
         self.nivel = self.font.myFont.render(f"{self.ciudad.nivel}", 1, BLUE)
-        self.prop = self.font.myFont.render(f"{self.ciudad.propietario}", 1, GREEN)
+        self.prop = self.font.myFont.render(f"{self.ciudad.prop}", 1, GREEN)
         self.ventana.blit(self.pob, np.array(self.rect.center) + np.array((0,200)))
         self.ventana.blit(self.nivel, np.array(self.rect.center) + np.array((0,-200)))
         self.ventana.blit(self.prop, np.array(self.rect.center) + np.array((0,-150)))
@@ -105,7 +108,7 @@ class SpriteCiudad(pygame.sprite.Sprite):
         
         self.pob = self.font.myFont.render(f"{int(np.floor( self.ciudad.poblacion ))}", 1, RED)
         self.nivel = self.font.myFont.render(f"{self.ciudad.nivel}", 1, BLUE)
-        self.prop = self.font.myFont.render(f"{self.ciudad.propietario}", 1, GREEN)
+        self.prop = self.font.myFont.render(f"{self.ciudad.prop}", 1, GREEN)
         self.ventana.blit(self.pob, np.array(self.rect.center) + np.array((0,200)))
         self.ventana.blit(self.nivel, np.array(self.rect.center) + np.array((0,-200)))
         self.ventana.blit(self.prop, np.array(self.rect.center) + np.array((0,-150)))        
