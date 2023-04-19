@@ -38,7 +38,7 @@ class Game():
 
     def mover(self, pid, objetivo):
         self.lock.acquire()
-        p.mover(objetivo)
+        pid.mover(objetivo)
         self.moves.append( _ALGO_ )
         self.lock.release()
     
@@ -51,13 +51,6 @@ class Game():
         self.players[player] = p
         self.lock.release()
 
-    def ball_collide(self, player):
-        self.lock.acquire()
-        ball = self.ball[0]
-        ball.collide_player(player)
-        self.ball[0] = ball
-        self.lock.release()
-
     def get_info(self):
         info = {
             'pos_left_player': self.players[LEFT_PLAYER].get_pos(),
@@ -67,22 +60,6 @@ class Game():
             'is_running': self.running.value == 1
         }
         return info
-
-    def move_ball(self):
-        self.lock.acquire()
-        ball = self.ball[0]
-        ball.update()
-        pos = ball.get_pos()
-        if pos[Y]<0 or pos[Y]>SIZE[Y]:
-            ball.bounce(Y)
-        if pos[X]>SIZE[X]:
-            self.score[LEFT_PLAYER] += 1
-            ball.bounce(X)
-        elif pos[X]<0:
-            self.score[RIGHT_PLAYER] += 1
-            ball.bounce(X)
-        self.ball[0]=ball
-        self.lock.release()
 
 
     def __str__(self):
