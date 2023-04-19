@@ -1,5 +1,5 @@
 from multiprocessing import Process, Manager
-from paho.mqtt import Client
+from paho.mqtt.client import Client
 import pickle
 import traceback
 import time

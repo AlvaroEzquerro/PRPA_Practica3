@@ -1,7 +1,7 @@
 import pickle
 import traceback
 import time
-from paho.mqtt import Client
+from paho.mqtt.client import Client
 
 class Patata():
     def __init__(self, i):
