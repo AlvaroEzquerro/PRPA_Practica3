@@ -64,7 +64,7 @@ class Game():
 def player(pid, conn, game):
     try:
         print(f"starting player {pid}")
-        conn.send( (pid, gameInfo) )
+        conn.send((pid, gameInfo))
         while game.is_running():
             command = ""
             while command != "next":

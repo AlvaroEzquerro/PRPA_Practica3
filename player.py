@@ -26,25 +26,23 @@ class Game():
         self.running = True
         #self.update(gameinfo)
     
-    def update_ciudades(info):
+    def update_ciudades(gameInfo):
         for i, c in enumerate(self.ciudades):
-            c.update(info[i+1])
+            c.update(gameInfo)
 
-    def update_players(info):
-        for i, c in enumerate(self.ciudades):
-            c.update(info[i+1])
+    def update_players(gameInfo):
+        for i, p in enumerate(self.players):
+            p.update(gameInfo)
     
-    def update_moves(info):
-        for i, c in enumerate(self.ciudades):
-            c.update(info[i])
+    def update_moves(gameInfo):
+        for i, m in enumerate(self.ciudades):
+            m.update(gameInfo)
 
+#NOTA: habria que determinar bien del todo los metodos de actualizacion de cada clase
     def update(self, gameinfo):
-        for c in self.ciudades:
-            c.update(gameinfo`)
-        self.set_pos_player(LEFT_PLAYER, gameinfo['pos_left_player'])
-        self.set_pos_player(RIGHT_PLAYER, gameinfo['pos_right_player'])
-        self.set_ball_pos(gameinfo['pos_ball'])
-        self.set_score(gameinfo['score'])
+        self.update_ciudades(gameInfo)
+        self.update_players(gameInfo)
+        self.update_moves(gameInfo)
         self.running = gameinfo['is_running']
 
     def is_running(self):
@@ -120,8 +118,8 @@ def main(ip_address):
                     if ev == 'quit':
                         game.stop()
                 conn.send("next")
-                gameinfo = conn.recv()
-                game.update(gameinfo)
+                gameInfo = conn.recv()
+                game.update(gameInfo)
                 display.refresh()
                 display.tick()
     except:
