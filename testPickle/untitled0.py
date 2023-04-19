@@ -1,9 +1,7 @@
-from multiprocessing import Process, Manager
-from multiprocessing.connection import Client, Listener
 import pickle
 import traceback
 import time
-import paho.mqtt.Client
+from paho.mqtt import Client
 
 class Patata():
     def __init__(self, i):
@@ -17,7 +15,7 @@ topic = "/clients/testeandoCosas"
 
 p = Patata(5)
 a = input("Presiona tecla para enviar")
-client.send(pickle.dumps(p))
+client.send(topic, pickle.dumps(p))
 
         
     
