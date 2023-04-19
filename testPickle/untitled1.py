@@ -23,6 +23,8 @@ client.connect(broker)
 topic = "/clients/testeandoCosas"
 client.subscribe(topic)
 
+client.loop_forever()
+
 
         
     

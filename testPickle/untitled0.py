@@ -15,7 +15,7 @@ topic = "/clients/testeandoCosas"
 
 p = Patata(5)
 a = input("Presiona tecla para enviar")
-client.send(topic, pickle.dumps(p))
+client.publish(topic, pickle.dumps(p))
 
         
     
