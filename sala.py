@@ -6,14 +6,20 @@ from Clases import *
 
 
 class Player():
-    def __init__(self, pid):
+    def __init__(self, pid, ciudad): #A cada jugador se le pasa el identificador y su ciudad inicial
         self.pid = pid
-        self.ciudades = [Ciudad(POSICIONES[pid-1], pid, pid)]
+        self.ciudades = [ciudad]
         self.capital = self.ciudades[0]
         # self.game = game
+        
+    def nuevaCiudad(c):
+        self.ciudades.append(c)
+        
+    def eliminaCiudad(c):
+        self.ciudades.pop(c)
 
-    def mover(self, objetivo):
-        self.capital.mover(objetivo)
+    #def mover(self, objetivo):
+    #    self.capital.mover(objetivo)
     
     def subirNivel(self):
         self.capital.subirNivel()
@@ -21,12 +27,14 @@ class Player():
     def cambiarCapital(self,c):
         if c.prop == pid:
             self.capital = c
-            
+
+#ESTRUCTURA DE gameInfo: Info={'ciudades'=[c1,...,cn}, 'players'=[p1,...,pn], 'movimientos'=[m1,...,mn]}   
+       
 class Game():
-    def __init__(self, manager):
-        self.players = manager.list( [Player(i+1) for i in range(3)] )
-        self.ciudades = manager.list( [Ciudad(POS[i], i+1) for i in range(len(POS))] )
-        self.moves = manager.list( [] )
+    def __init__(self, manager, gameInfo):
+        self.players = gameInfo['jugadores']
+        self.ciudades = gameInfo['ciudades']
+        self.moves = gameInfo['movimientos']
         self.running = Value('i', 1)
         self.lock = Lock()
 
@@ -36,55 +44,38 @@ class Game():
     def stop(self):
         self.running.value = 0
 
-    def mover(self, pid, objetivo):
+    #Estas serian las dos operaciones basicas que se realizan en el juego: atacar y defender
+    def ataque(self, atacante, defensor):
         self.lock.acquire()
-        pid.mover(objetivo)
-        self.moves.append( _ALGO_ )
+        ataque = atacante.atacar(defensor) #Definir metodo en cada jugador que genere un ataque
+        self.gameInfo['movimientos'].append(ataque) #Añadimos este movimiento a gameInfo
         self.lock.release()
     
-    ###########################
-    
-    def moveDown(self, player):
+    def protege(self, player, ciudad):
         self.lock.acquire()
-        p = self.players[player]
-        p.moveDown()
-        self.players[player] = p
+        player.protege(ciudad) #Definir metodo en cada jugador que proteja a una ciudad
+        self.gameInfo['ciudades'][ciudad-1].update() #Actualizamos el estado de la ciudad en gameInfo
         self.lock.release()
-
-    def get_info(self):
-        info = {
-            'pos_left_player': self.players[LEFT_PLAYER].get_pos(),
-            'pos_right_player': self.players[RIGHT_PLAYER].get_pos(),
-            'pos_ball': self.ball[0].get_pos(),
-            'score': list(self.score),
-            'is_running': self.running.value == 1
-        }
-        return info
 
 
     def __str__(self):
-        return f"G<{self.players[RIGHT_PLAYER]}:{self.players[LEFT_PLAYER]}:{self.ball[0]}:{self.running.value}>"
-# 
-# =============================================================================
+        return f"G<{self.gameInfo}>"
+
 def player(pid, conn, game):
     try:
-        print(f"starting player {pid}:{game.get_info()}")
-        conn.send( (pid, game.get_info()) )
+        print(f"starting player {pid}")
+        conn.send( (pid, gameInfo) )
         while game.is_running():
             command = ""
             while command != "next":
                 command = conn.recv()
-                if command == "up":
-                    game.moveUp(side)
-                elif command == "down":
-                    game.moveDown(side)
-                elif command == "collide":
-                    game.ball_collide(side)
+                if command == "atack":
+                    #game.ataque()
+                elif command == "defense":
+                    #game.protege()
                 elif command == "quit":
                     game.stop()
-            if side == 1:
-                game.move_ball()
-            conn.send(game.get_info())
+            conn.send(gameInfo)
     except:
         traceback.print_exc()
         conn.close()
@@ -97,22 +88,29 @@ def main(ip_address):
     try:
         with Listener((ip_address, 6000),
                       authkey=b'secret password') as listener:
-            pids = 0
-            players = []
+            
+            POSICIONES = [(400,300), (1500,300), (950,750)] #Posicion de cada una de las ciudades (suponiendo que hay 3 jugadores)
+            players = [] #Lista de los jugadores como procesos
+            jugadores = [] #Lista de los jugadores como clases Player
+            ciudades = [] #Lista de las ciudades 
+            for i in range(5):
+                self.ciudades = [Ciudad(POSICIONES[i-1], i]
             game = Game(manager)
+            pids = 0
             while True:
                 print(f"accepting connection {pid}")
                 conn = listener.accept()
                 players[pid] = Process(target=player,
                                             args=(pid, conn, game))
+                jugadores[pid] = Player(i+1, ciudades[i])
                 pids += 1
                 if pid == 3:
                     players[0].start()
                     players[1].start()
                     players[2].start()
-                    pid = 0
-                    players = [None, None]
-                    game = Game(manager)
+                    gameInfo = {'ciudades': ciudades, 'jugadores': jugadores, 'movimientos': []}
+                    game = Game(manager, gameInfo)
+                    #Quizas antes de iniciar el juego haya que enviar este primer gameInfo a los jugadores
 
     except Exception as e:
         traceback.print_exc()

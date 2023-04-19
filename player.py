@@ -16,14 +16,15 @@ class Player():
     def update(self, info):
         self.ciudades = pass
         
-    
+#ESTRUCTURA DE gameInfo: Info={'ciudades'=[c1,...,cn}, 'players'=[p1,...,pn], 'movimientos'=[m1,...,mn]}
+
 class Game():
-    def __init__(self, gameinfo):
-        self.players = []
-        self.ciudades = []
-        self.moves = []
+    def __init__(self, gameInfo):
+        self.players = gameInfo['jugadores']
+        self.ciudades = gameInfo['ciudades']
+        self.movimientos = gameInfo['movimientos']
         self.running = True
-        self.update(gameinfo)
+        #self.update(gameinfo)
     
     def update_ciudades(info):
         for i, c in enumerate(self.ciudades):
@@ -53,26 +54,26 @@ class Game():
         self.running = False
 
     def __str__(self):
-        return f"G<{self.players[RIGHT_PLAYER]}:{self.players[LEFT_PLAYER]}:{self.ball}>"
+        return f"G<str(game)>"
 
 
 
 class Display():
     def __init__(self, game):
         self.game = game
-        self.paddles = [Paddle(self.game.get_player(i)) for i in range(2)]
+        #self.paddles = [Paddle(self.game.get_player(i)) for i in range(2)]
 
-        self.ball = BallSprite(self.game.get_ball())
-        self.all_sprites = pygame.sprite.Group()
-        self.paddle_group = pygame.sprite.Group()
-        for paddle  in self.paddles:
-            self.all_sprites.add(paddle)
-            self.paddle_group.add(paddle)
-        self.all_sprites.add(self.ball)
+        #self.ball = BallSprite(self.game.get_ball())
+        #self.all_sprites = pygame.sprite.Group()
+        #self.paddle_group = pygame.sprite.Group()
+        #for paddle  in self.paddles:
+            #self.all_sprites.add(paddle)
+            #self.paddle_group.add(paddle)
+        #self.all_sprites.add(self.ball)
 
-        self.screen = pygame.display.set_mode(SIZE)
-        self.clock =  pygame.time.Clock()  #FPS
-        self.background = pygame.image.load('background.png')
+        #self.screen = pygame.display.set_mode(SIZE)
+        #self.clock =  pygame.time.Clock()  #FPS
+        #self.background = pygame.image.load('background.png')
         pygame.init()
 
     def analyze_events(self, side):
@@ -82,25 +83,17 @@ class Display():
                 if event.key == pygame.K_ESCAPE:
                     events.append("quit")
                 elif event.key == pygame.K_UP:
-                    events.append("up")
+                    events.append("attack")
                 elif event.key == pygame.K_DOWN:
-                    events.append("down")
+                    events.append("defense")
             elif event.type == pygame.QUIT:
                 events.append("quit")
-        if pygame.sprite.collide_rect(self.ball, self.paddles[side]):
-            events.append("collide")
         return events
 
 
     def refresh(self):
         self.all_sprites.update()
-        self.screen.blit(self.background, (0, 0))
-        score = self.game.get_score()
-        font = pygame.font.Font(None, 74)
-        text = font.render(f"{score[LEFT_PLAYER]}", 1, WHITE)
-        self.screen.blit(text, (250, 10))
-        text = font.render(f"{score[RIGHT_PLAYER]}", 1, WHITE)
-        self.screen.blit(text, (SIZE[X]-250, 10))
+        #HAY QUE DEFINIRLO
         self.all_sprites.draw(self.screen)
         pygame.display.flip()
 
@@ -142,18 +135,3 @@ if __name__ == "__main__":
         ip_address = sys.argv[1]
     main(ip_addres)
 
-
-
-
-
-
-
-
-
-
-
-if __name__=="__main__":
-    ip_address = "127.0.0.1"
-    if len(sys.argv)>1:
-        ip_address = sys.argv[1]
-    main(ip_address)
