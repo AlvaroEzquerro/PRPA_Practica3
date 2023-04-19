@@ -26,30 +26,14 @@ class Game():
         self.running = True
         #self.update(gameinfo)
     
-    def update_ciudades(gameInfo):
-        for i, c in enumerate(self.ciudades):
-            c.update(gameInfo)
-
-    def update_players(gameInfo):
-        for i, p in enumerate(self.players):
-            p.update(gameInfo)
-    
-    def update_moves(gameInfo):
-        for i, m in enumerate(self.ciudades):
-            m.update(gameInfo)
-
-#NOTA: habria que determinar bien del todo los metodos de actualizacion de cada clase
-    def update(self, gameinfo):
-        self.update_ciudades(gameInfo)
-        self.update_players(gameInfo)
-        self.update_moves(gameInfo)
-        self.running = gameinfo['is_running']
+    def update(self, gameInfo):
+        self.players = gameInfo['jugadores']
+        self.ciudades = gameInfo['ciudades']
+        self.movimientos = gameInfo['movimientos']
+        self.running = gameInfo['is_running']
 
     def is_running(self):
         return self.running
-
-    def stop(self):
-        self.running = False
 
     def __str__(self):
         return f"G<str(game)>"
@@ -59,6 +43,9 @@ class Game():
 class Display():
     def __init__(self, game):
         self.game = game
+        
+        self.ventana = pygame.display.set_mode(SIZE)
+        self.fondo = ("el sprite que alvaro tiene q hacer en photoshop")
         #self.paddles = [Paddle(self.game.get_player(i)) for i in range(2)]
 
         #self.ball = BallSprite(self.game.get_ball())

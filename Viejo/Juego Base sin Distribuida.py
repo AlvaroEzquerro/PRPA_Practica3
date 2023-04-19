@@ -188,15 +188,15 @@ clock = pygame.time.Clock()
 myFont = pygame.font.SysFont("Times New Roman", 18)
         
 # Definir la ventana del juego
-ANCHO_VENTANA = 1960
-ALTO_VENTANA = 1280
+ANCHO_VENTANA = 900
+ALTO_VENTANA = 900
 ventana = pygame.display.set_mode((ANCHO_VENTANA, ALTO_VENTANA))
 pygame.display.set_caption("Juego de Conquista")
 
 
 ciudades = []
 sprites_ciudades = pygame.sprite.RenderPlain()
-posiciones = [(200,200), (1200,1000), (100,1000)]
+posiciones = [(200,200), (700,100), (100,700)]
 for i, p in enumerate(posiciones):
     ciudades.append(Ciudad(p,i+1))
     sprites_ciudades.add(SpriteCiudad(ciudades[i], ventana))
