@@ -63,13 +63,14 @@ class Movimiento():
         self.prop = ciudad1.prop # OJO CON ESTO POR SI CAMBIA EL PROPIETARIO DE LA CIUDAD MIENTRAS EL ATAQUE ESTA LANZADO
         self.pos = ciudad1.pos
         self.direccion = np.array(ciudad2.c.pos) - np.array(ciudad1.c.pos)
-        self.vel = 5*self.direccion/np.linalg.norm(self.direccion)
+        self.distancia=np.linalg.norm(self.direccion)
+        self.vel = 5*self.direccion/self.distancia
         self.n_tropas = 5
         
-        self.c1.c.poblacion -= self.n_tropas
+        self.c1.poblacion -= self.n_tropas
         
-    def move(self):
-        self.pos += self.vel
+    def duracion(self):
+        return self.distancia/5
 
     def llegada(self):
         self.vel = [0,0]
