@@ -28,39 +28,43 @@ class Player():
         if c.prop == pid:
             self.capital = c
 
-#ESTRUCTURA DE gameInfo: Info={'ciudades'=[c1,...,cn}, 'players'=[p1,...,pn], 'movimientos'=[m1,...,mn]}   
+#ESTRUCTURA DE gameInfo: Info={'ciudades'=[c1,...,cn}, 'players'=[p1,...,pn],
+#                             'movimientos'=[m1,...,mn], 'is_running'=True}   
        
 class Game():
     def __init__(self, manager, gameInfo):
+        self.gameInfo = gameInfo #Para mandarlo todo del tiron
         self.players = gameInfo['jugadores']
         self.ciudades = gameInfo['ciudades']
         self.moves = gameInfo['movimientos']
-        self.running = Value('i', 1)
+        self.running = gameInfo['is_running']
         self.lock = Lock()
 
     def is_running(self):
-        return self.running.value == 1
+        return self.running == True
 
     def stop(self):
-        self.running.value = 0
+        self.lock.acquire()
+        self.running = False
+        self.lock.release()
 
     #Estas serian las dos operaciones basicas que se realizan en el juego: atacar y defender
-    def ataque(self, atacante, defensor):
+    def movimiento(self, player, ciudad):
         self.lock.acquire()
-        ataque = atacante.atacar(defensor) #Definir metodo en cada jugador que genere un ataque
-        self.gameInfo['movimientos'].append(ataque) #Añadimos este movimiento a gameInfo
+        movimiento = Movimiento(player.capital, ciudad)
+        self.moves.append(movimiento) #Añadimos este movimiento a gameInfo
         self.lock.release()
+
+    def mandarInfo(self):
+        #self.lock.acquire()
+        #self.moves=[]
+        #self.lock.release()
+        pass
     
-    def protege(self, player, ciudad):
-        self.lock.acquire()
-        player.protege(ciudad) #Definir metodo en cada jugador que proteja a una ciudad
-        self.gameInfo['ciudades'][ciudad-1].update() #Actualizamos el estado de la ciudad en gameInfo
-        self.lock.release()
-
-
     def __str__(self):
         return f"G<{self.gameInfo}>"
-
+    
+'''
 def player(pid, conn, game):
     try:
         print(f"starting player {pid}")
@@ -121,3 +125,4 @@ if __name__=='__main__':
         ip_address = sys.argv[1]
 
     main(ip_address)
+'''
