@@ -31,7 +31,15 @@ class Player():
         self.pid = pid
         self.ciudades = ciudades
         self.capital = capital
+
+    #CLASE PARA GESTIONAR LOS ATAQUES, SIMPLEMETE RECOPILA QUIEN ATACA Y QUIEN ES ATACADO
     
+def Ataque():
+    def __init__(self, pid, ciudad):
+        self.aid = pid #Añadimos un identificador de ataque que coincida con el del atacante suponiendo que no ataca dos sitios a la vez
+        self.atacante = self.jugadores[pid-1]
+        self.atacado = self.ciudad
+        
 #ESTRUCTURA DE gameInfo: {'ciudades'=[c1,...,cn], 'players'=[p1,...,pn], 'movimientos'=[m1,...,mn], 'is_running' = True}
 
 #DEFINIMOS LA CLASE GAME
@@ -65,6 +73,7 @@ class Game():
             self.jugadores[pid-1].capital.poblacion -= 10
             # Aqui habria que añadirle un delay y llamarlo desde un process
             self.ciudad.poblacion -= 10
+            self.movimientos.append(Ataque(pid, ciudad))#Añadimos el movimiento para enviarlo a los jugadores
             if self.ciudad.poblacion <= 0: #Si conquista la ciudad se le quita al otro y se la queda el atacante
                 enemigo = self.ciudad.propietario
                 self.jugadores[enemigo-1].ciudades.pop(ciudad)
@@ -94,6 +103,9 @@ def player(pid, game):
                 #distingue casos y le dice a game como gestionar los comandos recibidos
                 pass
             #enviaInfo(gameInfo)
+            #NOTA: He pensado que una vez envia un ataque este sea borrado y que sean los jugadores los que gestionen ese ataque,
+            #Realmente solo tendrian que controlar los graficos
+            
     except:
         traceback.print_exc()
     finally:
