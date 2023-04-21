@@ -66,6 +66,8 @@ class Game():
         for j, p in self.jugadores:
             update_jugador(p, gameInfo['jugadores'][j])
         self.running = gameInfo['is_running']
+        #Habria que definir bien como se gestionan los ataques. Quizas lo mejor sea que cada jugador tenga un almacen propio
+        #con los ataques que realizar, que gameInfo solo le de la orden
         
     def is_running(self):
         return self.running
