@@ -3,7 +3,7 @@ import traceback
 
 #DEFINIMOS LAS CLASES DE LA SALA
 
-    #CLASE PARA RECOGER INFO DE LAS CIUDADES
+#CLASE PARA RECOGER INFO DE LAS CIUDADES
 class Ciudad():
     def __init__(self, pos, cid, prop=None):
         self.posicion = pos
@@ -59,7 +59,7 @@ class Game():
     def stop(self):
         self.running =  False
         
-    #Game es el encargado de llevar las acciones que le indica el jugador mediante los proces, asi que definimos estas operaciones
+    #Game es el encargado de llevar las acciones que le indica el jugador mediante los process, asi que definimos estas operaciones
     #Aqui solo se consideran tres acciones por parte del jugador:
         #Atacar otra ciudad desde su capital
         #Subir de nivel su capital
@@ -68,21 +68,23 @@ class Game():
     #Estas operaciones son las que hay que proteger con semaforos
     
     def atacar(self, pid, ciudad):
-        self.lock.acquire()
-        self.jugadores[pid-1].capital.poblacion -= 10
-        self.ciudad.poblacion -= 10
-        if self.ciudad.poblacion <= 0: #Si conquista la ciudad se le quita al otro y se la queda el atacante
-            enemigo = self.ciudad.propietario
-            self.jugadores[enemigo-1].ciudades.pop(ciudad)
-            self.jugadores[pid-1].ciudades.append(ciudad)
-            ciudad.propietario = pid
-        self.movimientos.append(Ataque(pid, ciudad))#Añadimos el movimiento para enviarlo a los jugadores
-        self.lock.release()
+        with self.lock:
+            # Mensaje de que se crea un movimiento
+            self.jugadores[pid-1].capital.poblacion -= 10
+            # Aqui habria que añadirle un delay y llamarlo desde un process
+            self.ciudad.poblacion -= 10
+            self.movimientos.append(Ataque(pid, ciudad))#Añadimos el movimiento para enviarlo a los jugadores
+            if self.ciudad.poblacion <= 0: #Si conquista la ciudad se le quita al otro y se la queda el atacante
+                enemigo = self.ciudad.propietario
+                self.jugadores[enemigo-1].ciudades.pop(ciudad)
+                self.jugadores[pid-1].ciudades.append(ciudad)
+                ciudad.propietario = pid
+            # Mensaje de borrar el movimiento
+
         
     def subirNivel(self, pid):
-        self.lock.acquire()
-        self.jugadores[pid-1].capital.subirNivel()
-        self.lock.release()
+        with self.lock:
+            self.jugadores[pid-1].capital.subirNivel()
         
     def cambiaCapital(self, pid, ciudad):
         self.jugadores[pid-1].capital = ciudad

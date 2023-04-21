@@ -10,13 +10,13 @@ class Player():
         self.ciudades = ciudades
         self.capital = capital 
     
-#TAMBIEN HAY QUE AÑADIR LOS METODOS DE ACTUALIZACION PERO COMO LA CLASE TIENE QUE SER IGUAL QUE EN LA SALA PARA EL PICKLE 
-#PODEMOS DEFINIR ESTAS FUNCIONES DE ACTUALIZACION COMO UNA FUNCION EXTERNA
+    #TAMBIEN HAY QUE AÑADIR LOS METODOS DE ACTUALIZACION PERO COMO LA CLASE TIENE QUE SER IGUAL QUE EN LA SALA PARA EL PICKLE 
+    #PODEMOS DEFINIR ESTAS FUNCIONES DE ACTUALIZACION COMO UNA FUNCION EXTERNA
 
-def update_jugador(player, playerAct):
-    if player.pid == playerAct.pid: #Por si acaso comprobamos que tengan el mismo pid
-        player.ciudades = playerAct.ciudades
-        player.capital = playerAct.capital
+    def update_jugador(self, playerAct):
+        if self.pid == playerAct.pid: #Por si acaso comprobamos que tengan el mismo pid
+            self.ciudades = playerAct.ciudades
+            self.capital = playerAct.capital
         
 #HACEMOS LO MISMO CON LAS CIUDADES
     
@@ -30,24 +30,25 @@ class Ciudad():
         self.produccion = 1
         self.max_capacidad = 20
         
-    #Metodo que actualiza la info cuando se sube de nivel
+    # Metodo que actualiza la info cuando se sube de nivel
+    # Esto igual no hace falta que lo tenga el player.py
     def subirNivel(self):
         costesNivel = {2: 5, 3: 10, 4: 20, 5: 50}
         maxCapNivel = {1: 20, 2: 50, 3: 100, 4:150, 5: 200}
         prodNivel = {1:1, 2:1.5, 3:2, 4:2.4, 5:2.75}
-        if self.nivel < 5 and self.poblacion > costesNivel[self.nivel+1] :
+        if self.nivel < 5 and self.poblacion >= costesNivel[self.nivel+1] :
             self.nivel += 1
             self.poblacion -= costesNivel[self.nivel]
             self.prod = prodNivel[self.nivel]
             self.max_cap = maxCapNivel[self.nivel]
             
-def update_ciudad(ciudad, ciudadAct):
-    if ciudad.id == ciudadAct.id:
-        ciudad.propietario = ciudadAct.propietario
-        ciudad.poblacion = ciudadAct.poblacion
-        ciudad.nivel = ciudadAct.nivel
-        ciudad.produccion = ciudadAct.produccion
-        ciudad.max_capacidad = ciudadAct.max_capacidad
+    def update_ciudad(self, ciudadAct):
+        if self.id == ciudadAct.id:
+            self.propietario = ciudadAct.propietario
+            self.poblacion = ciudadAct.poblacion
+            self.nivel = ciudadAct.nivel
+            self.produccion = ciudadAct.produccion
+            self.max_capacidad = ciudadAct.max_capacidad
         
 #DEFINIMOS LA CLASE GAME
 
@@ -61,10 +62,10 @@ class Game():
         self.pid = pid
         
     def update(self, gameInfo):
-        for i, c in self.ciudades:
-            update_ciudad(c, gameInfo['ciudades'][i])
-        for j, p in self.jugadores:
-            update_jugador(p, gameInfo['jugadores'][j])
+        for i, c in enumerate(self.ciudades):
+            c.update_ciudad(gameInfo['ciudades'][i])
+        for j, p in enumerate(self.jugadores):
+            p.update_jugador(gameInfo['jugadores'][j])
         self.running = gameInfo['is_running']
         #Habria que definir bien como se gestionan los ataques. Quizas lo mejor sea que cada jugador tenga un almacen propio
         #con los ataques que realizar, que gameInfo solo le de la orden
@@ -95,6 +96,7 @@ def main():
             pass
     except:
         traceback.print_exc()
+        # Para que es esta llamada?
     finally:
         pygame.quit()
         
