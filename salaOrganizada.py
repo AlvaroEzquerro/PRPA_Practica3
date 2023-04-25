@@ -1,6 +1,8 @@
 from multiprocessing import Process, Manager, Value, Lock
 import traceback
 
+POSICIONES = [(400,300), (1500,300), (950,750)]
+
 #DEFINIMOS LAS CLASES DE LA SALA
 
 #CLASE PARA RECOGER INFO DE LAS CIUDADES
