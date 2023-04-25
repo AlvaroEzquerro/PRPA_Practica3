@@ -51,7 +51,8 @@ class SpriteMov(pygame.sprite.Sprite):
         self.mov = movimiento
         self.font = myFont
         
-        self.image = pygame.image.load('PNGs/sword.png').convert()
+        imagen = pygame.image.load('PNGs/sword.png').convert()
+        self.image = pygame.transform.smoothscale(imagen, (90, 90))
         self.image.set_colorkey(WHITE)
         
         self.rect = self.image.get_rect()
