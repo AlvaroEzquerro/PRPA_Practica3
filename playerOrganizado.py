@@ -1,6 +1,8 @@
 import traceback
 import pygame
 import sys, os
+import time
+import numpy as np
 
 #DEFINIMOS LAS CLASES QUE SE MANEJAN QUE COMO SE ENVIAN DESDE LA SALA SUPONGO QUE TIENEN QUE SER LAS MISMAS QUE LAS DE LA SALA
 
@@ -101,3 +103,35 @@ def main():
         pygame.quit()
         
         
+        
+class Movimiento():
+    '''
+    ciudad1: Origen
+    ciudad2: Destino
+    '''
+    def __init__(self, ciudad1, ciudad2):
+        self.c1 = ciudad1
+        self.c2 = ciudad2
+        self.prop = ciudad1.propietario
+        self.pos = ciudad1.posicion
+        self.direccion = np.array(ciudad2.posicion) - np.array(ciudad1.posicion)
+        self.distancia=np.linalg.norm(self.direccion)
+        self.vel = 50*self.direccion/self.distancia
+        self.n_tropas = 5
+        self.duracion = self.distancia/5
+        self.c1.poblacion -= self.n_tropas
+        
+
+    def llegada(self):
+        if self.prop == self.c2.propietario:
+            self.c2.poblacion += self.n_tropas
+        else:
+            self.c2.poblacion -= self.n_tropas
+            if self.c2.poblacion < 1:
+                self.c2.propietario = self.c1.propietario
+                self.c2.poblacion *= -1
+        del self
+
+def move(movimiento):
+    time.sleep(movimiento.duracion)
+    movimiento.llegada()
