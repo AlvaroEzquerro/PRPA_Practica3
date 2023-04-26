@@ -35,9 +35,9 @@ class SpriteCiudad(pygame.sprite.Sprite):
         self.font = myFont
         self.ventana = ventana
         
-        imagen = pygame.image.load('PNGs/castle.png').convert()
+        imagen = pygame.image.load('PNGs/castle.png').convert_alpha()
         self.image = pygame.transform.smoothscale(imagen, (90, 90))
-        self.image.set_colorkey(BLACK)
+        #self.image.set_colorkey(BLACK)
         
         
         self.rect = self.image.get_rect()
@@ -66,7 +66,7 @@ class SpriteMov(pygame.sprite.Sprite):
         self.mov = movimiento
         self.font = myFont
         
-        imagen = pygame.image.load('PNGs/sword.png').convert()
+        imagen = pygame.image.load('PNGs/sword.png').convert_alpha()
         self.image = pygame.transform.smoothscale(imagen, (40, 40))
         #self.image.set_colorkey(WHITE)
         
@@ -80,11 +80,10 @@ class SpriteMov(pygame.sprite.Sprite):
         
     def update(self):
         self.rect.center += self.avance
-        print(self.rect.center)
         self.image.blit(self.n, self.rect.center)
         if self.rect.center==self.mov.c2.posicion:
             self.mov.llegada()
-            self.kill()
+        
 
 class Display():
     def __init__(self, jug, game):    
@@ -102,7 +101,7 @@ class Display():
         pygame.display.set_caption("Juego de Conquista")
         
         # Crear grupo de sprites para las ciudades
-        self.ventana.fill((255, 255, 255)) #Rellenamos el fondo de blanco
+        self.ventana.fill(WHITE) #Rellenamos el fondo de blanco
         self.sprites_ciudades = pygame.sprite.Group()
         self.sprites_movimientos = pygame.sprite.Group()
         
@@ -123,6 +122,7 @@ class Display():
         self.sprites_movimientos.update()
 
     def draw(self):
+        self.ventana.fill(WHITE)
         self.sprites_ciudades.draw(self.ventana)
         self.sprites_movimientos.draw(self.ventana)
         
