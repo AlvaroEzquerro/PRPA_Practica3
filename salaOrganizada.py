@@ -1,5 +1,6 @@
 from multiprocessing import Process, Manager, Value, Lock
 import traceback
+from paho.mqtt.client import Client
 
 POSICIONES = [(400,300), (1500,300), (950,750)]
 
@@ -112,12 +113,27 @@ def player(pid, game):
         traceback.print_exc()
     finally:
         print(f'Game ended')
-        
-#FUNCION MAIN DE LA SALA
+      
+#FUNCIONES MQTT
+
+def on_message(cliente, userdata, msg):
+    info_recibida = msg.payload
+    #Actualizar gameInfo con info_recibida
+    
+###
 
 def main():
     try:
-        #Establecer conexion
+        #PARTE MQTT
+        client = Client()
+        client.on_message = on_message
+        client.on_publish = on_publish
+        client.connect('simba.fdi.ucm.es')
+        client.subscribe('clients/players')
+        client.loop_forever()
+        while True:
+            client.publish('clients/sala', gameInfo) #Hay que enviarlo con el pickle
+        ###
         POSICIONES = [(400,300), (1500,300), (950,750)] #Posicion de cada una de las ciudades (suponiendo que hay 3 jugadores)
         ciudades = [Ciudad(POSICIONES[i], i+1) for i in range(3)] #Lista con todas las ciudades del tablero
         gameInfo = {'ciudades': ciudades, 'jugadores': [None, None, None], 'movimientos': [], 'is_running': True} #Declaramos el gameInfo
@@ -136,7 +152,10 @@ def main():
                     proceso.start()
                 pid = 0
                 procesos = [None, None, None]
-        
+       ####
+       while True:
+            client.publish('clients/players', gameInfo) #Hay que enviarlo con el pickle 
+       ###
     except Exception as e:
         traceback.print_exc()
         

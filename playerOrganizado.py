@@ -3,6 +3,7 @@ import pygame
 import sys, os
 import time
 import numpy as np
+from paho.mqtt.client import Client
 
 #DEFINIMOS LAS CLASES QUE SE MANEJAN QUE COMO SE ENVIAN DESDE LA SALA SUPONGO QUE TIENEN QUE SER LAS MISMAS QUE LAS DE LA SALA
 
@@ -85,17 +86,29 @@ class Game():
 ##################################
 
 
+#FUNCIONES MQTT
+
+def on_message(cliente, userdata, msg):
+    infoRecibida = msg.payload
+    #Actualizar gameInfo con infoRecibida usando pickle
 
 def main():
     try:
-        #conectarse
+        #PARTE MQTT
+        client = Client()
+        client.on_message = on_message
+        client.connect('simba.fdi.ucm.es')
+        client.subscribe('clients/sala')
+        ###
         pid, gameInfo = None, None #Aqui habria que poner que son el mensaje recibido
         print(f'I am playing as {pid}')
         game = Game(pid, gameInfo)
         #display = display(Game)
         while game.is_running():
             #Analizar eventos e ir mandando la info de lo que se teclea
-            pass
+            #MQTT#
+            client.publish('clients/sala', game.pid, gameInfo) #Hay que enviarlo con el pickle 
+            ###
     except:
         traceback.print_exc()
         # Para que es esta llamada?
