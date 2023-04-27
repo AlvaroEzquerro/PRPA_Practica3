@@ -193,5 +193,5 @@ if __name__=="__main__":
     sala = "clients/sala"
     players = "clients/players"
     if len(sys.argv)>1:
-        ip_address = sys.argv[1]
+        broker = sys.argv[1]
     main(broker)
