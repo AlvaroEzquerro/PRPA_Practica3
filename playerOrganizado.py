@@ -122,13 +122,13 @@ def on_message(cliente, userdata, msg):
         print("Informacion actualizada")        # Para testear
     #Actualizar gameInfo con infoRecibida usando pickle
 
-def main():
+def main(broker):
     try:
         #PARTE MQTT
         client = Client(userdata = {"pid":None, "gameinfo":None})
         client.on_connect = on_connect
         client.on_message = on_message
-        client.connect('simba.fdi.ucm.es')
+        client.connect(broker)
         client.subscribe(players)
         
         game = Game(client.userdata["pid"], client.userdata["gameinfo"])
