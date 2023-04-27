@@ -98,10 +98,12 @@ class SpriteDato(pygame.sprite.Sprite):
         self.ventana.blit(self.prop, np.array(self.rect.topleft)+np.array((0,10)))
         
 class SpriteMov(pygame.sprite.Sprite):
-    def __init__(self, movimiento, myFont):
+    def __init__(self, movimiento, myFont, ventana, rect_final):
         super(SpriteMov, self).__init__()
         self.mov = movimiento
         self.font = myFont
+        self.ventana = ventana
+        self.rect_final = rect_final
         
         imagen = pygame.image.load('PNGs/sword.png').convert_alpha()
         self.image = pygame.transform.smoothscale(imagen, (40, 40))
@@ -118,7 +120,8 @@ class SpriteMov(pygame.sprite.Sprite):
     def update(self):
         self.rect.center += self.avance
         self.image.blit(self.n, self.rect.center)
-        if self.rect.center==self.mov.c2.posicion:
+        if self.rect_final.collidepoint(self.rect.center):
+            self.kill()
             self.mov.llegada()
         
 
@@ -126,6 +129,7 @@ class Display():
     def __init__(self, jug, game):    
         self.jug = jug # Cuando se conecte, se le asigna el numero de jugador con on_connect
         self.game = game
+        self.running=game.running
         
         pygame.init()
         pygame.font.init()
@@ -157,26 +161,55 @@ class Display():
         self.ventana.fill(WHITE)
         self.sprites_ciudades.update(gameInfo)
         self.sprites_datos.update()
+        for c1, c2 in gameinfo['movimientos']:
+            mov=Movimiento(c1, c2)
+            sprite=SpriteMov(mov, self.font, self.ventana, self.game.ciudades[c2.id])
         self.sprites_movimientos.update()
 
     def draw(self):
         self.sprites_ciudades.draw(self.ventana)
         self.sprites_datos.draw(self.ventana)
         self.sprites_movimientos.draw(self.ventana)
-        
+
+    def analyze_events(self, pos):
+        '''
+        'stop'->parar el programa
+        (cid1, cid2, jug) -> Generar movimiento
+        (cid1, cid1, jug) -> Subir de nivel
+        '''
+        events=[]
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running=False
+                events.append('stop')
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                #Deteccion de pulsacion del raton
+                if pos == None:
+                    pos = event.pos
+                else:
+                    pos2 = event.pos
+                    cid1=0
+                    cid2=0
+                    for c in self.sprites_ciudades:
+                        if c.rect.collidepoint(pos):
+                            cid1 = c.ciudad.id
+                        if c.rect.collidepoint(pos2):
+                            cid2 = c.ciudad.id
+                    events.append((cid1, cid2, self.jug))
+                    pos = None
+        return pos, events
+                
+                
 # Main loop, run until window closed
-running = True
 
 display=Display(jug, game)
-
-while running:
+pos = None
+while display.running:
     
     display.clock.tick(FPS)
     
     #Procesamos los eventos
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running=False
+    pos, events = display.analyze_events(pos)
     
     #Render
     display.update(gameInfo)
