@@ -71,7 +71,7 @@ class Player():
 
 def Movimiento():
     def __init__(self, pid, ciudad):
-        self.aid = pid #Añadimos un identificador de ataque que coincida con el del atacante suponiendo que no ataca dos sitios a la vez
+        self.pid = pid #Añadimos un identificador de ataque que coincida con el del atacante suponiendo que no ataca dos sitios a la vez
         self.atacante = self.jugadores[pid-1]
         self.atacado = self.ciudad
       
