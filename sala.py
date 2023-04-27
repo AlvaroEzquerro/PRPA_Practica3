@@ -206,17 +206,17 @@ def on_message(client, userdata, msg):
         info = pickle.loads(msg.payload)
         if info == "Nueva Conexion":
             userdata["num_jug"]+=1
-            client.publish(userdata["num_jug"],sala)
+            client.publish( pickle.dumps( (userdata["num_jug"], userdata["gameinfo"])) ,new_player)
         elif info[1] == "ready" and not(userdata["start"]):
             userdata["readys"].add(info[0])
             userdata["start"] = userdata["num_jug"] == len(userdata["readys"]) and userdata["num_jug"] > 0
         elif info[1] == "subirNivel":
             userdata["gameinfo"]['jugadores'][info[2]].subirNivel()
-        elif info[1] == "atacar":
+        elif info[1] == "movimiento":
             userdata["gameInfo"]["movimientos"] += (info[2], info[3])
             llegada(info[2], info[3])
-        elif info == "exit":
-            userdara["gameInfo"]["is_running"] = False
+        elif info == "quit":
+            userdata["gameInfo"]["is_running"] = False
             
     except:
         pass
@@ -255,6 +255,7 @@ if __name__=="__main__":
     broker = "simba.fdi.ucm.es"
     sala = "clients/sala"
     players = "clients/players"
+    new_player = "clients/new_players"
     if len(sys.argv)>1:
         broker = sys.argv[1]
     main(broker)

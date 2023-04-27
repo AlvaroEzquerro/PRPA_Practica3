@@ -155,15 +155,26 @@ class Display():
             self.sprites_datos.add(dato)
             
         pygame.display.flip()
-        
+    
+    
+    """
+    Dudas sobre el update:
+        spriteCiudades no tiene definido ningun .update asi que, ¿es necesario llamar a self.sprites_ciudades.update()?
+        Tambien he añadido al principio un      self.game.update()
+            y                                   self.sprites_movimientos.add(sprite)
+    """  
+    
+    
     def update(self,gameinfo):
         #Se actualizan los datos de cada sprite
         self.ventana.fill(WHITE)
-        self.sprites_ciudades.update(gameInfo)
+        self.game.update()
+        self.sprites_ciudades.update(gameinfo)
         self.sprites_datos.update()
         for c1, c2 in gameinfo['movimientos']:
             mov=Movimiento(c1, c2)
             sprite=SpriteMov(mov, self.font, self.ventana, self.game.ciudades[c2.id])
+            self.sprites_movimientos.add(sprite)
         self.sprites_movimientos.update()
 
     def draw(self):
