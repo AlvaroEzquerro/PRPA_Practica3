@@ -47,7 +47,7 @@ class Ciudad():
     
     def update(self):
         # La capacidad maxima se puede exceder si llegan refuerzos, pero a partir de ese punto, la ciudad no produce nuevos soldados
-        if self.prop != None and self.poblacion < self.max_cap:
+        if self.propietario != None and self.poblacion < self.max_cap:
             self.poblacion += self.prod
             if self.poblacion > self.max_cap: self.poblacion = self.max_cap 
         
@@ -222,11 +222,11 @@ def on_message(client, userdata, msg):
         pass
     finally:
         pass
-    #Actualizar gameInfo con info_recibida
+
     
 ###
 
-def main():
+def main(broker):
     try:
         # Generamos el juego
         
@@ -240,8 +240,8 @@ def main():
         client = Client(userdata = {"gameinfo": gameinfo, "num_jug":0, "readys":set(), "start":False})
         client.on_message = on_message
         # client.on_publish = on_publish
-        client.connect('simba.fdi.ucm.es')
-        client.subscribe('clients/players')
+        client.connect(broker)
+        client.subscribe(sala)
         client.loop_start()
 
         while gameinfo["is_running"] or not(client.userdata["start"]):

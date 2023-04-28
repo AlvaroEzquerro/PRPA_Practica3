@@ -270,13 +270,13 @@ def on_message(client, userdata, msg):
         traceback.print_exc()
         pass
 
-def main():
+def main(broker):
     try:
         userdata = {"pid": None, "gameinfo": None, "display": None}
         client = Client(userdata = userdata)
         client.on_connect = on_connect
         client.on_message = on_message
-        client.connect('simba.fdi.ucm.es')
+        client.connect(broker)
         client.subscribe(new_player)
         client.subscribe(players)
         
@@ -322,4 +322,4 @@ if __name__=="__main__":
     new_player = "clients/new_players"
     if len(sys.argv)>1:
         broker = sys.argv[1]
-    main()
+    main(broker)
