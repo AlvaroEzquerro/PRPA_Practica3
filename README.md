@@ -25,7 +25,7 @@ La entrega consta principalmente de dos ficheros: *player.py* y *sala.py*
 
 Este fichero contiene el código correspondiente a la sala que organiza el juego para los distintos jugadores. Su función principalmente consiste en recibir las acciones que realiza cada jugador y llevarlas a cabo dentro del juego de la manera que corresponda. Cuando se incicia se conecta al servidor 'simba.fdi.ucm.es' y envía mensajes al canal 'clients/sala' y está suscrito al canal 'clients/players', de donde recibe las acciones de los jugadores. 
 
-### layer.py
+### player.py
 
 Este fichero contiene el código correspondiente a cada uno de los jugadores que se desee conectar al juego. Su funcionamiento consiste en llevar a cabo las acciones que le ordena la sala y gestionar lo gráficos, que en este caso son sprites del módulo pygame. Cuando un jugador desee jugar debe correr este archivo y presionar la barra espaciadora para conectarse al mismo servidor que la sala y así poder intercambiar mensajes.
 
