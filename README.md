@@ -5,7 +5,7 @@ Esta es la entrega correspondiente a la Práctica 3 de la asignatura de Programa
 - Álvaro Ezquerro Pérez 
 - Alejandro Millán Arribas
 
-##Funcionamiento del juego
+## Funcionamiento del juego
 
 El juego consiste en un tablero donde se dispone un determinado número de ciudades y a cada jugador se le asigna una de ellas. Cada ciudad posee una población la cual se incrementa cada una cierta cantidad de tiempo. Cada jugador puede llevar a cabo dos acciones, una de ataque y otra de defensa:
 
@@ -17,18 +17,18 @@ El jugador puede aumentar el nivel de su ciudad de forma que aumenta tanto la po
 
 El objetivo final del juego es que un jugador consiga conquista todas las ciudades enemigas de forma que acabe siendo el último jugador sobre el tablero y así, gane la partida.
 
-##Código Informático
+## Código Informático
 
 La entrega consta principalmente de dos ficheros: *player.py* y *sala.py*
 
-###sala.py
+### sala.py
 
 Este fichero contiene el código correspondiente a la sala que organiza el juego para los distintos jugadores. Su función principalmente consiste en recibir las acciones que realiza cada jugador y llevarlas a cabo dentro del juego de la manera que corresponda. Cuando se incicia se conecta al servidor 'simba.fdi.ucm.es' y envía mensajes al canal 'clients/sala' y está suscrito al canal 'clients/players', de donde recibe las acciones de los jugadores. 
 
-###player.py
+### layer.py
 
 Este fichero contiene el código correspondiente a cada uno de los jugadores que se desee conectar al juego. Su funcionamiento consiste en llevar a cabo las acciones que le ordena la sala y gestionar lo gráficos, que en este caso son sprites del módulo pygame. Cuando un jugador desee jugar debe correr este archivo y presionar la barra espaciadora para conectarse al mismo servidor que la sala y así poder intercambiar mensajes.
 
-###Demás carpetas
+### Demás carpetas
 
 Las demás carpetas contienen los pngs e imágenes que se han utilizado en la representación gráfica del juego, nada de gran interés para el usuario, pero que son necesarias guardar en la misma carpeta donde ejecutemos el juego para que no haya problemas.
