@@ -6,7 +6,7 @@ Por hacer:
 """
 
 """
-Observaciones:
+Observaciones: La clase player creo que se puede eliminar
 
 """
 
@@ -65,16 +65,171 @@ class Player():
         if c2 in self.ciudades:
             self.capital = c2
 
-    # def movimiento:
-    #     pass
 
 
-def Movimiento():
-    def __init__(self, pid, ciudad):
-        self.pid = pid #Añadimos un identificador de ataque que coincida con el del atacante suponiendo que no ataca dos sitios a la vez
-        self.atacante = self.jugadores[pid-1]
-        self.atacado = self.ciudad
+
+class Game():
+    def __init__(self, gameinfo):
+        self.gameinfo = gameinfo
+        self.jugadores = gameinfo['jugadores']
+        self.ciudades = gameinfo['ciudades']
+        self.movimientos = gameinfo['movimientos']
+        self.running = gameinfo['is_running']
+        self.lock = Lock()
+
+    def is_running(self):
+        return self.running
+    
+    # Esto no iba con un static method?
+    def stop(self):
+        self.running =  False
+        
+    #Game es el encargado de llevar las acciones que le indica el jugador mediante los process, asi que definimos estas operaciones
+    #Aqui solo se consideran tres acciones por parte del jugador:
+        #Atacar otra ciudad desde su capital
+        #Subir de nivel su capital
+        #Cambiar su capital
+        
+    #Estas operaciones son las que hay que proteger con semaforos
+    
+    def atacar(self, pid, ciudad):
+        with self.lock:
+            # Mensaje de que se crea un movimiento
+            self.jugadores[pid-1].capital.poblacion -= 10
+            # Aqui habria que añadirle un delay y llamarlo desde un process
+            self.ciudad.poblacion -= 10
+            self.movimientos.append(Ataque(pid, ciudad))#Añadimos el movimiento para enviarlo a los jugadores
+            if self.ciudad.poblacion <= 0: #Si conquista la ciudad se le quita al otro y se la queda el atacante
+                enemigo = self.ciudad.propietario
+                self.jugadores[enemigo-1].ciudades.pop(ciudad)
+                self.jugadores[pid-1].ciudades.append(ciudad)
+                ciudad.propietario = pid
+            # Mensaje de borrar el movimiento
+
+        
+    def subirNivel(self, ciudad):
+        with self.lock:
+            ciudad.subirNivel()
+        
+    #def cambiaCapital(self, pid, ciudad):
+        #self.jugadores[pid-1].cambiarCapital(ciudad)
+
+    def llegada(self, c1, c2):
+        with self.lock:
+            p = Process(target = llegada, args = (c1, c2))
+            p.start()
+            p.join()
+    
+    def update(self):
+            for ciudad in self.ciudades:
+                ciudad.update()
+            for mov in self.movimientos:
+                mov.update()
+    
+    def get_info(self):
+        return gameinfo
+
+    #Funcion que luego usaran los procesos de llegada
+def llegada(ciudad1, ciudad2):
+    delay(5)
+    ciudad2.poblacion -= 20
+    
+    
       
+#FUNCIONES MQTT
+
+def on_message(client, userdata, msg):
+    try:    
+        info = pickle.loads(msg.payload)
+        if info == "Nueva Conexion":
+            userdata["num_jug"]+=1
+            client.publish( pickle.dumps( (userdata["num_jug"], userdata["gameinfo"])) ,new_player)
+        elif info[1] == "ready" and not(userdata["start"]):
+            userdata["readys"].add(info[0])
+            userdata["start"] = userdata["num_jug"] == len(userdata["readys"]) and userdata["num_jug"] > 0
+        elif info[1] == "subirNivel":
+            game.subirNivel(userdata["gameinfo"]['jugadores'][info[2]])
+            client.publish(pickle.dumps(client.userdata["gameinfo"]), sala) 
+        elif info[1] == "movimiento":
+            userdata["gameInfo"]["movimientos"] += (info[2], info[3])
+            client.publish(pickle.dumps(client.userdata["gameinfo"]), sala) 
+            game.llegada(info[2], info[1])
+        elif info == "quit":
+            userdata["gameInfo"]["is_running"] = False
+            client.publish(pickle.dumps(client.userdata["gameinfo"]), sala)
+        game.update()
+            
+    except:
+        pass
+    finally:
+        pass
+
+    
+###
+
+def main(broker):
+    try:
+        # Generamos el juego
+        
+        POSICIONES = [(400,300), (1500,300), (950,750)] #Posicion de cada una de las ciudades (suponiendo que hay 3 jugadores)
+        ciudades = [Ciudad(POSICIONES[i], i+1) for i in range(3)] #Lista con todas las ciudades del tablero
+        gameinfo = {'ciudades': ciudades, 'jugadores': [None, None, None], 'movimientos': [], 'is_running': True} #Declaramos el gameInfo
+        game = Game(gameinfo) #Creamos el juego
+        
+        #PARTE MQTT
+        
+        client = Client(userdata = {"gameinfo": gameinfo, "num_jug":0, "readys":set(), "start":False})
+        client.on_message = on_message
+        # client.on_publish = on_publish
+        client.connect(broker)
+        client.subscribe(sala)
+        client.subscribe(players)
+        client.loop_forever()
+
+           
+       ###
+    except Exception as e:
+        traceback.print_exc()
+        
+if __name__=="__main__":
+    broker = "simba.fdi.ucm.es"
+    sala = "clients/sala"
+    players = "clients/players"
+    new_player = "clients/new_players"
+    if len(sys.argv)>1:
+        broker = sys.argv[1]
+    main(broker)
+
+
+
+    
+#### AQUI HE DEJADO TODO LO QUE CREO QUE NO HACE FALTA####
+
+
+#Creo que dijimos que no nos hacía falta pero por si acaso lo dejo aqui
+
+#DEFINIMOS LOS PROCESOS QUE SON LOS QUE REALMENTE ENVIAN Y RECIBEN LOS MENSAJES Y LE DICEN A GAME LO QUE TIENE QUE HACER
+
+#def player(pid, game):
+    #try:
+        #print(f'starting player {pid}')
+        #enviaInfo(pid, gameInfo) nada mas ser creado
+        #while game.is_running():
+            #command = ''
+            #while command != 'next':
+                #command = recibeConexion()
+                #distingue casos y le dice a game como gestionar los comandos recibidos
+                #pass
+            #enviaInfo(gameInfo)
+            #NOTA: He pensado que una vez envia un ataque este sea borrado y que sean los jugadores los que gestionen ese ataque,
+            #Realmente solo tendrian que controlar los graficos
+            
+    #except:
+        #traceback.print_exc()
+    #finally:
+        #print(f'Game ended')
+
+
 """
 Si lo hacemnos con mensajes podria se algo como asi
 
@@ -122,141 +277,11 @@ Aunque, al fin y al cabo, puede que lo mas facil sea que los procesos de los mov
 #                          'movimientos'=[m1,...,mn],
 #                          'is_running' = True}
 
-class Game():
-    def __init__(self, gameInfo):
-        self.gameInfo = gameInfo
-        self.jugadores = gameInfo['jugadores']
-        self.ciudades = gameInfo['ciudades']
-        self.movimientos = gameInfo['movimientos']
-        self.running = gameInfo['is_running']
-        self.lock = Lock()
 
-    def is_running(self):
-        return self.running
-    
-    # Esto no iba con un static method?
-    def stop(self):
-        self.running =  False
-        
-    #Game es el encargado de llevar las acciones que le indica el jugador mediante los process, asi que definimos estas operaciones
-    #Aqui solo se consideran tres acciones por parte del jugador:
-        #Atacar otra ciudad desde su capital
-        #Subir de nivel su capital
-        #Cambiar su capital
-        
-    #Estas operaciones son las que hay que proteger con semaforos
-    
-    def atacar(self, pid, ciudad):
-        with self.lock:
-            # Mensaje de que se crea un movimiento
-            self.jugadores[pid-1].capital.poblacion -= 10
-            # Aqui habria que añadirle un delay y llamarlo desde un process
-            self.ciudad.poblacion -= 10
-            self.movimientos.append(Ataque(pid, ciudad))#Añadimos el movimiento para enviarlo a los jugadores
-            if self.ciudad.poblacion <= 0: #Si conquista la ciudad se le quita al otro y se la queda el atacante
-                enemigo = self.ciudad.propietario
-                self.jugadores[enemigo-1].ciudades.pop(ciudad)
-                self.jugadores[pid-1].ciudades.append(ciudad)
-                ciudad.propietario = pid
-            # Mensaje de borrar el movimiento
 
-        
-    def subirNivel(self, pid):
-        with self.lock:
-            self.jugadores[pid-1].subirNivel()
-        
-    def cambiaCapital(self, pid, ciudad):
-        self.jugadores[pid-1].cambiarCapital(ciudad)
-    
-    def update(self):
-        for ciudad in self.ciudades:
-            ciudad.update()
-        for mov in self.movimientos:
-            mov.update()
-    
-    def get_info(self):
-        pass
-        return gameinfo
 
-#DEFINIMOS LOS PROCESOS QUE SON LOS QUE REALMENTE ENVIAN Y RECIBEN LOS MENSAJES Y LE DICEN A GAME LO QUE TIENE QUE HACER
-
-def player(pid, game):
-    try:
-        print(f'starting player {pid}')
-        #enviaInfo(pid, gameInfo) nada mas ser creado
-        while game.is_running():
-            command = ''
-            while command != 'next':
-                #command = recibeConexion()
-                #distingue casos y le dice a game como gestionar los comandos recibidos
-                pass
-            #enviaInfo(gameInfo)
-            #NOTA: He pensado que una vez envia un ataque este sea borrado y que sean los jugadores los que gestionen ese ataque,
-            #Realmente solo tendrian que controlar los graficos
-            
-    except:
-        traceback.print_exc()
-    finally:
-        print(f'Game ended')
-      
-#FUNCIONES MQTT
-
-def on_message(client, userdata, msg):
-    try:    
-        info = pickle.loads(msg.payload)
-        if info == "Nueva Conexion":
-            userdata["num_jug"]+=1
-            client.publish( pickle.dumps( (userdata["num_jug"], userdata["gameinfo"])) ,new_player)
-        elif info[1] == "ready" and not(userdata["start"]):
-            userdata["readys"].add(info[0])
-            userdata["start"] = userdata["num_jug"] == len(userdata["readys"]) and userdata["num_jug"] > 0
-        elif info[1] == "subirNivel":
-            userdata["gameinfo"]['jugadores'][info[2]].subirNivel()
-        elif info[1] == "movimiento":
-            userdata["gameInfo"]["movimientos"] += (info[2], info[3])
-            llegada(info[2], info[3])
-        elif info == "quit":
-            userdata["gameInfo"]["is_running"] = False
-            
-    except:
-        pass
-    finally:
-        pass
-
-    
-###
-
-def main(broker):
-    try:
-        # Generamos el juego
-        
-        POSICIONES = [(400,300), (1500,300), (950,750)] #Posicion de cada una de las ciudades (suponiendo que hay 3 jugadores)
-        ciudades = [Ciudad(POSICIONES[i], i+1) for i in range(3)] #Lista con todas las ciudades del tablero
-        gameinfo = {'ciudades': ciudades, 'jugadores': [None, None, None], 'movimientos': [], 'is_running': True} #Declaramos el gameInfo
-        game = Game(gameinfo) #Creamos el juego
-        
-        #PARTE MQTT
-        
-        client = Client(userdata = {"gameinfo": gameinfo, "num_jug":0, "readys":set(), "start":False})
-        client.on_message = on_message
-        # client.on_publish = on_publish
-        client.connect(broker)
-        client.subscribe(sala)
-        client.loop_start()
-
-        while gameinfo["is_running"] or not(client.userdata["start"]):
-            game.update()
-            client.publish(pickle.dumps(gameinfo), sala) 
-       ###
-    except Exception as e:
-        traceback.print_exc()
-        
-if __name__=="__main__":
-    broker = "simba.fdi.ucm.es"
-    sala = "clients/sala"
-    players = "clients/players"
-    new_player = "clients/new_players"
-    if len(sys.argv)>1:
-        broker = sys.argv[1]
-    main(broker)
-
+#def Movimiento():
+    #def __init__(self, pid, ciudad):
+        #self.pid = pid #Añadimos un identificador de ataque que coincida con el del atacante suponiendo que no ataca dos sitios a la vez
+        #self.atacante = self.jugadores[pid-1]
+        #self.atacado = self.ciudad
