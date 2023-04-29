@@ -143,20 +143,20 @@ def on_message(client, userdata, msg):
         info = pickle.loads(msg.payload)
         if info == "Nueva Conexion":
             userdata["num_jug"]+=1
-            client.publish( pickle.dumps( (userdata["num_jug"], userdata["gameinfo"])) ,new_player)
+            client.publish(new_player, pickle.dumps( (userdata["num_jug"], userdata["gameinfo"])))
         elif info[1] == "ready" and not(userdata["start"]):
             userdata["readys"].add(info[0])
             userdata["start"] = userdata["num_jug"] == len(userdata["readys"]) and userdata["num_jug"] > 0
         elif info[1] == "subirNivel":
             game.subirNivel(userdata["gameinfo"]['jugadores'][info[2]])
-            client.publish(pickle.dumps(client.userdata["gameinfo"]), sala) 
+            client.publish(sala, pickle.dumps(client.userdata["gameinfo"])) 
         elif info[1] == "movimiento":
             userdata["gameInfo"]["movimientos"] += (info[2], info[3])
-            client.publish(pickle.dumps(client.userdata["gameinfo"]), sala) 
+            client.publish(sala, pickle.dumps(client.userdata["gameinfo"])) 
             game.llegada(info[2], info[1])
         elif info == "quit":
             userdata["gameInfo"]["is_running"] = False
-            client.publish(pickle.dumps(client.userdata["gameinfo"]), sala)
+            client.publish(sala, pickle.dumps(client.userdata["gameinfo"]))
         game.update()
             
     except:

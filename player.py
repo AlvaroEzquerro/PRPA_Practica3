@@ -249,7 +249,7 @@ class Display():
 
 def on_connect(client, userdata, flags, rc):
     print(f"Se ha conseguido conectar a {broker}")
-    client.publish(pickle.dumps("Nueva conexion"), sala)
+    client.publish(sala, pickle.dumps("Nueva conexion"))
     
 def on_message(client, userdata, msg):
     try:
@@ -279,7 +279,7 @@ def main(broker):
         client.connect(broker)
         client.subscribe(new_player)
         client.subscribe(players)
-        client.loop_forever()
+        client.loop_start()
         
         display = None
         while display == None:
@@ -302,7 +302,7 @@ def main(broker):
                     msg = (ev[0], "subirNivel" , ev[1])
                 else:
                     msg = (ev[0], "movimiento", ev[1], ev[2])
-                client.publish(pickle.dumps(msg), sala)
+                client.publish(sala, pickle.dumps(msg))
 
 
             display.update(userdata["gameinfo"])
