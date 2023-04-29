@@ -184,7 +184,7 @@ def main(broker):
         client.connect(broker)
         client.subscribe(sala)
         client.subscribe(players)
-        client.loop_forever()
+        client.loop_start()
 
            
        ###
