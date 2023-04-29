@@ -52,6 +52,7 @@ class Ciudad():
         self.nivel = 1
         self.produccion = 1
         self.max_capacidad = 20
+        self.sprite = None
         
     # Metodo que actualiza la info cuando se sube de nivel
     """ Esto igual no hace falta que lo tenga el player.py"""
@@ -159,7 +160,7 @@ class Movimiento():
     ciudad1: Origen
     ciudad2: Destino
     '''
-    def __init__(self, ciudad1, ciudad2):
+    def __init__(self, ciudad1, ciudad2, n_tropas):
         self.c1 = ciudad1
         self.c2 = ciudad2
         self.prop = ciudad1.propietario
@@ -167,8 +168,11 @@ class Movimiento():
         self.direccion = np.array(ciudad2.posicion) - np.array(ciudad1.posicion)
         self.distancia=np.linalg.norm(self.direccion)
         self.vel = 50*self.direccion/self.distancia
-        self.n_tropas = 5
-        self.duracion = self.distancia/5
+        if n_tropas == None:
+            self.n_tropas = 5
+        else:
+            self.n_tropas = n_tropas*self.c1.poblacion
+        self.duracion = self.distancia/50
         self.c1.poblacion -= self.n_tropas
         
 

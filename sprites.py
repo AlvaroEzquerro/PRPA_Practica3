@@ -105,21 +105,22 @@ class SpriteMov(pygame.sprite.Sprite):
         self.ventana = ventana
         self.rect_final = rect_final
         
-        imagen = pygame.image.load('PNGs/sword.png').convert_alpha()
+        imagen = pygame.image.load('PNGs/ball.png').convert_alpha()
         self.image = pygame.transform.smoothscale(imagen, (40, 40))
         #self.image.set_colorkey(WHITE)
         
         self.rect = self.image.get_rect()
         self.rect.center = self.mov.c1.posicion
         
-        self.n = self.font.render(f"{self.mov.n_tropas}", 1, RED)
-        self.ventana.blit(self.n, self.rect.center)
+        self.n_tropas = self.font.render(f"{self.mov.n_tropas}", 1, BLUE)
+        self.ventana.blit(self.n_tropas, self.rect.center)
         
         self.avance=self.mov.vel/FPS #Avance por frame
         
     def update(self):
         self.rect.center += self.avance
-        self.image.blit(self.n, self.rect.center)
+        self.n_tropas = self.font.render(f"{self.mov.n_tropas}", 1, BLUE)
+        self.ventana.blit(self.n_tropas, self.rect.center)
         if self.rect_final.collidepoint(self.rect.center):
             self.kill()
             self.mov.llegada()
@@ -137,7 +138,7 @@ class Display():
         # Definir la ventana del juego
         self.ventana = pygame.display.set_mode((ANCHO_VENTANA, ALTO_VENTANA))
         self.clock = pygame.time.Clock()
-        self.font = pygame.font.SysFont("Times New Roman", 10)
+        self.font = pygame.font.SysFont("Times New Roman", 12)
         
         pygame.display.set_caption("Juego de Conquista")
         
@@ -151,6 +152,7 @@ class Display():
             #Se generan los sprites de las ciudades
             ciudad=SpriteCiudad(c, self.ventana)
             dato=SpriteDato(c, self.font, self.ventana, ciudad.rect)
+            c.sprite = dato
             self.sprites_ciudades.add(ciudad)
             self.sprites_datos.add(dato)
             
@@ -162,19 +164,22 @@ class Display():
         spriteCiudades no tiene definido ningun .update asi que, ¿es necesario llamar a self.sprites_ciudades.update()?
         Tambien he añadido al principio un      self.game.update()
             y                                   self.sprites_movimientos.add(sprite)
+            
+    He comentado el update, no hace falta. 
     """  
     
     
     def update(self,gameinfo):
         #Se actualizan los datos de cada sprite
         self.ventana.fill(WHITE)
-        self.game.update()
-        self.sprites_ciudades.update(gameinfo)
+        self.game.update(gameInfo)
+        #self.sprites_ciudades.update(gameinfo)
         self.sprites_datos.update()
-        for c1, c2 in gameinfo['movimientos']:
-            mov=Movimiento(c1, c2)
-            sprite=SpriteMov(mov, self.font, self.ventana, self.game.ciudades[c2.id])
+        for c1, c2, n in gameinfo['movimientos']:
+            mov=Movimiento(c1, c2, n)
+            sprite=SpriteMov(mov, self.font, self.ventana, c2.sprite.rect)
             self.sprites_movimientos.add(sprite)
+        gameInfo['movimientos']=[]
         self.sprites_movimientos.update()
 
     def draw(self):
@@ -182,11 +187,15 @@ class Display():
         self.sprites_datos.draw(self.ventana)
         self.sprites_movimientos.draw(self.ventana)
 
-    def analyze_events(self, pos):
+    def analyze_events(self, pos, n_tropas, gameInfo):
         '''
         'stop'->parar el programa
-        (cid1, cid2, jug) -> Generar movimiento
-        (cid1, cid1, jug) -> Subir de nivel
+        (jug, cid1, cid2, n_tropas) -> Generar movimiento
+        (jug, cid1, cid1, n_tropas) -> Subir de nivel
+        
+        n_tropas = 1 -> Por defecto, se mandan 5
+        n_tropas = 2 -> 50%
+        n_tropas = 3 -> 100%
         '''
         events=[]
         for event in pygame.event.get():
@@ -203,24 +212,34 @@ class Display():
                     cid2=0
                     for c in self.sprites_ciudades:
                         if c.rect.collidepoint(pos):
-                            cid1 = c.ciudad.id
+                            cid1 = c.ciudad
                         if c.rect.collidepoint(pos2):
-                            cid2 = c.ciudad.id
-                    events.append((cid1, cid2, self.jug))
+                            cid2 = c.ciudad
+                    #events.append((self.jug, cid1, cid2, n_tropas))
+                    gameInfo['movimientos'].append((cid1, cid2, n_tropas))
                     pos = None
-        return pos, events
+            if event.type == pygame.KEYDOWN:
+                if event.unicode == '1':
+                    n_tropas = None
+                elif event.unicode == '2':
+                    n_tropas = 0.5
+                elif event.unicode == '3':
+                    n_tropas = 1
+                    
+        return pos, events, n_tropas
                 
                 
 # Main loop, run until window closed
 
 display=Display(jug, game)
 pos = None
+n_tropas = None
 while display.running:
     
     display.clock.tick(FPS)
     
     #Procesamos los eventos
-    pos, events = display.analyze_events(pos)
+    pos, events, n_tropas = display.analyze_events(pos, n_tropas, gameInfo)
     
     #Render
     display.update(gameInfo)
