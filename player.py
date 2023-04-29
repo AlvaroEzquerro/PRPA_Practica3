@@ -279,6 +279,7 @@ def main(broker):
         client.connect(broker)
         client.subscribe(new_player)
         client.subscribe(players)
+        client.loop_forever()
         
         display = None
         while display == None:
