@@ -97,6 +97,33 @@ class SpriteDato(pygame.sprite.Sprite):
         self.ventana.blit(self.nivel, np.array(self.rect.topright)+np.array((-20,10)))
         self.ventana.blit(self.prop, np.array(self.rect.topleft)+np.array((0,10)))
         
+class SpriteN_tropas(pygame.sprite.Sprite):
+    def __init__(self, myFont, ventana):
+        super(SpriteN_tropas, self).__init__()
+        self.font = myFont
+        self.ventana = ventana
+        
+        self.image=pygame.Surface((ANCHO_VENTANA, ALTO_VENTANA))
+        self.image.set_colorkey(BLACK)
+        
+        self.default = self.font.render("5", 1, BLACK)
+        self.half = self.font.render("50%", 1, BLACK)
+        self.full = self.font.render("100%", 1, BLACK)
+        
+        self.current = self.default
+        self.ventana.blit(self.default, (450, 200))
+        
+    def update(self, mode):
+        if mode == 1:
+            self.current = self.default
+        elif mode == 2:
+            self.current = self.half
+        elif mode == 3:
+            self.current = self.full
+        
+        self.ventana.blit(self.current, (450, 450))
+        
+        
 class SpriteMov(pygame.sprite.Sprite):
     def __init__(self, movimiento, myFont, ventana, rect_final):
         super(SpriteMov, self).__init__()
@@ -107,20 +134,14 @@ class SpriteMov(pygame.sprite.Sprite):
         
         imagen = pygame.image.load('PNGs/ball.png').convert_alpha()
         self.image = pygame.transform.smoothscale(imagen, (40, 40))
-        #self.image.set_colorkey(WHITE)
         
         self.rect = self.image.get_rect()
         self.rect.center = self.mov.c1.posicion
-        
-        self.n_tropas = self.font.render(f"{self.mov.n_tropas}", 1, BLUE)
-        self.ventana.blit(self.n_tropas, self.rect.center)
         
         self.avance=self.mov.vel/FPS #Avance por frame
         
     def update(self):
         self.rect.center += self.avance
-        self.n_tropas = self.font.render(f"{self.mov.n_tropas}", 1, BLUE)
-        self.ventana.blit(self.n_tropas, self.rect.center)
         if self.rect_final.collidepoint(self.rect.center):
             self.kill()
             self.mov.llegada()
@@ -147,6 +168,7 @@ class Display():
         self.sprites_ciudades = pygame.sprite.Group()
         self.sprites_datos= pygame.sprite.Group()
         self.sprites_movimientos = pygame.sprite.Group()
+        self.spriteN_tropas = SpriteN_tropas(self.font, self.ventana)
         
         for c in self.game.ciudades:
             #Se generan los sprites de las ciudades
@@ -156,24 +178,13 @@ class Display():
             self.sprites_ciudades.add(ciudad)
             self.sprites_datos.add(dato)
             
+        self.mode = 1
         pygame.display.flip()
-    
-    
-    """
-    Dudas sobre el update:
-        spriteCiudades no tiene definido ningun .update asi que, ¿es necesario llamar a self.sprites_ciudades.update()?
-        Tambien he añadido al principio un      self.game.update()
-            y                                   self.sprites_movimientos.add(sprite)
-            
-    He comentado el update, no hace falta. 
-    """  
-    
     
     def update(self,gameinfo):
         #Se actualizan los datos de cada sprite
         self.ventana.fill(WHITE)
         self.game.update(gameInfo)
-        #self.sprites_ciudades.update(gameinfo)
         self.sprites_datos.update()
         for c1, c2, n in gameinfo['movimientos']:
             mov=Movimiento(c1, c2, n)
@@ -181,6 +192,7 @@ class Display():
             self.sprites_movimientos.add(sprite)
         gameInfo['movimientos']=[]
         self.sprites_movimientos.update()
+        self.spriteN_tropas.update(self.mode)
 
     def draw(self):
         self.sprites_ciudades.draw(self.ventana)
@@ -220,11 +232,11 @@ class Display():
                     pos = None
             if event.type == pygame.KEYDOWN:
                 if event.unicode == '1':
-                    n_tropas = None
+                    self.mode = 1
                 elif event.unicode == '2':
-                    n_tropas = 0.5
+                    self.mode = 2
                 elif event.unicode == '3':
-                    n_tropas = 1
+                    self.mode = 3
                     
         return pos, events, n_tropas
                 

@@ -171,7 +171,7 @@ class Movimiento():
         if n_tropas == None:
             self.n_tropas = 5
         else:
-            self.n_tropas = n_tropas*self.c1.poblacion
+            self.n_tropas = int(n_tropas*self.c1.poblacion)
         self.duracion = self.distancia/50
         self.c1.poblacion -= self.n_tropas
         
