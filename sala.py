@@ -160,9 +160,9 @@ def on_message(client, userdata, msg):
         game.update()
             
     except:
-        pass
+        traceback.print_exc()
     finally:
-        pass
+        print("Ha habido un error")
 
     
 ###
@@ -184,7 +184,7 @@ def main(broker):
         client.connect(broker)
         client.subscribe(sala)
         client.subscribe(players)
-        client.loop_start()
+        client.loop_forever()
 
            
        ###
