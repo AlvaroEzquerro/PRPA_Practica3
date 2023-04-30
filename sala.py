@@ -131,7 +131,7 @@ class Game():
 
     #Funcion que luego usaran los procesos de llegada
 def llegada(ciudad1, ciudad2):
-    delay(5)
+    time.sleep(time)
     ciudad2.poblacion -= 20
     
     
@@ -139,30 +139,35 @@ def llegada(ciudad1, ciudad2):
 #FUNCIONES MQTT
 
 def on_message(client, userdata, msg):
+    print(userdata)
     try:    
         info = pickle.loads(msg.payload)
-        if info == "Nueva Conexion":
+        if info == "Nueva conexion":
+            print("AAAA")
             userdata["num_jug"]+=1
+            print("AAAAAAAA")
             client.publish(new_player, pickle.dumps( (userdata["num_jug"], userdata["gameinfo"])))
         elif info[1] == "ready" and not(userdata["start"]):
             userdata["readys"].add(info[0])
             userdata["start"] = userdata["num_jug"] == len(userdata["readys"]) and userdata["num_jug"] > 0
         elif info[1] == "subirNivel":
-            game.subirNivel(userdata["gameinfo"]['jugadores'][info[2]])
+            userdata["game"].subirNivel(userdata["gameinfo"]['jugadores'][info[2]])
             client.publish(sala, pickle.dumps(client.userdata["gameinfo"])) 
         elif info[1] == "movimiento":
             userdata["gameInfo"]["movimientos"] += (info[2], info[3])
             client.publish(sala, pickle.dumps(client.userdata["gameinfo"])) 
-            game.llegada(info[2], info[1])
+            userdata["game"].llegada(info[2], info[1])
         elif info == "quit":
             userdata["gameInfo"]["is_running"] = False
             client.publish(sala, pickle.dumps(client.userdata["gameinfo"]))
-        game.update()
+        else: print("BBBBBBBBBB")
+        userdata["game"].update()
             
     except:
+        print("Ha habido un error")
         traceback.print_exc()
     finally:
-        print("Ha habido un error")
+        pass
 
     
 ###
@@ -173,12 +178,12 @@ def main(broker):
         
         POSICIONES = [(400,300), (1500,300), (950,750)] #Posicion de cada una de las ciudades (suponiendo que hay 3 jugadores)
         ciudades = [Ciudad(POSICIONES[i], i+1) for i in range(3)] #Lista con todas las ciudades del tablero
-        gameinfo = {'ciudades': ciudades, 'jugadores': [None, None, None], 'movimientos': [], 'is_running': True} #Declaramos el gameInfo
+        gameinfo = {'ciudades': ciudades, 'jugadores': [], 'movimientos': [], 'is_running': True} #Declaramos el gameInfo
         game = Game(gameinfo) #Creamos el juego
         
         #PARTE MQTT
         
-        client = Client(userdata = {"gameinfo": gameinfo, "num_jug":0, "readys":set(), "start":False})
+        client = Client(userdata = {"game": game, "gameinfo": gameinfo, "num_jug":0, "readys":set(), "start":False})
         client.on_message = on_message
         # client.on_publish = on_publish
         client.connect(broker)
@@ -188,7 +193,7 @@ def main(broker):
 
            
        ###
-    except Exception as e:
+    except Exception:
         traceback.print_exc()
         
 if __name__=="__main__":

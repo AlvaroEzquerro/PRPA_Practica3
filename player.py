@@ -254,12 +254,13 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     try:
         topic = msg.topic
-        info = pickle.load(msg.payload)
+        info = pickle.loads(msg.payload)
         if topic == new_player:
             client.unsubscribe(new_player)
             userdata["pid"] = info[0]
             userdata["gameinfo"] = info[1]
-            userdata["display"] = Display(Game(userdata["gameinfo"]))
+            userdata["display"] = Display(Game(userdata["pid"], userdata["gameinfo"]))
+            print(userdata["display"])
             print(f"Iniciando como jugador {userdata['pid']}")
             print("Pulsa espacio cuando estes preparado")
         else:
@@ -286,12 +287,12 @@ def main(broker):
             display = userdata["display"]
         game = display.game
         del userdata["display"]
-        
+                
         pos = None
         while display.running:
             display.clock.tick(FPS)
-
-            pos, events = display.analyze_events()
+            print(display.running)
+            pos, events = display.analyze_events(pos)
             for ev in events:
                 if ev == 'quit':
                     game.stop()
