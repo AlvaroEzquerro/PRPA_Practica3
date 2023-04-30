@@ -223,7 +223,7 @@ class Display():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     events.append("quit")
-                if event.key == pygame.K_ESCAPE:
+                if event.key == pygame.K_SPACE:
                     events.append((self.jug, "ready"))
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 #Deteccion de pulsacion del raton
@@ -238,7 +238,7 @@ class Display():
                             cid1 = c.ciudad.id
                         if c.rect.collidepoint(pos2):
                             cid2 = c.ciudad.id
-                    events.append(( self.jug,cid1, cid2))
+                    events.append((self.jug,cid1, cid2))
                     pos = None
         return pos, events
 
@@ -261,13 +261,14 @@ def on_message(client, userdata, msg):
             userdata["gameinfo"] = info[1]
             userdata["display"] = Display(Game(userdata["pid"], userdata["gameinfo"]))
             print(userdata["display"])
-            print(f"Iniciando como jugador {userdata['pid']}")
+            print(f"Iniciando como jugador {info[0]}")
             print("Pulsa espacio cuando estes preparado")
         else:
             userdata["gameinfo"] = info
             print("Informacion actualizada")        # Para testear
     except:
         # print error o lo de no se que traceback
+
         traceback.print_exc()
         pass
 
