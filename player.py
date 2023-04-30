@@ -292,7 +292,7 @@ def main(broker):
         pos = None
         while display.running:
             display.clock.tick(FPS)
-            print(display.running)
+
             pos, events = display.analyze_events(pos)
             for ev in events:
                 if ev == 'quit':
