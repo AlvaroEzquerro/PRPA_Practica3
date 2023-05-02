@@ -271,7 +271,11 @@ class Display():
                 elif event.unicode == '3':
                     self.mode = 3
                 elif event.key == '8': #Tecla: Backspace (borrar)
-                    pos = None        
+                    pos = None
+                elif event.key == pygame.K_ESCAPE:
+                    events.append("quit")
+                elif event.key == pygame.K_SPACE:
+                    events.append((self.jug, "ready"))
         return pos, events
                 
 
