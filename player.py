@@ -236,7 +236,7 @@ class Display():
         self.sprites_datos.draw(self.ventana)
         self.sprites_movimientos.draw(self.ventana)
 
-    def analyze_events(self, pos, gameInfo):
+    def analyze_events(self, pos):
         '''
         'stop'->parar el programa
         (jug, cid1, cid2, mode) -> Generar movimiento
