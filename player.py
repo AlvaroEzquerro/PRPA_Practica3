@@ -321,14 +321,12 @@ def main(broker):
         client.on_message = on_message
         client.connect(broker)
         client.subscribe(new_player)
-        client.subscribe(players)
         client.loop_start()
         
         display = None
         while display == None:
             display = userdata["display"]
         game = display.game
-        del userdata["display"]
                 
         pos = None
         while display.running:
@@ -341,6 +339,7 @@ def main(broker):
                     msg = ev
                 elif ev[1] == "ready":
                     msg = ev
+                    client.subscribe(players)
                 elif ev[1] == ev[2]:
                     msg = (ev[0], "subirNivel" , ev[1])
                 else:
