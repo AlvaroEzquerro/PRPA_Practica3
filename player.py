@@ -337,6 +337,7 @@ def main(broker):
             for ev in events:
                 if ev == 'quit':
                     game.stop()
+                    display.running = False
                     msg = ev
                 elif ev[1] == "ready":
                     msg = ev
