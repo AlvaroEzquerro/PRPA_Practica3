@@ -30,7 +30,6 @@ class Player():
 class Ciudad():
     def __init__(self, ciudadinfo):
         self.update_ciudad(ciudadinfo)
-        self.sprite = None
             
     def update(self, ciudadinfo):
         if self.id == ciudadinfo.id:
@@ -304,8 +303,10 @@ def on_message(client, userdata, msg):
             userdata["gameinfo"] = info
             disp = userdata["display"]
             for c1, c2 in userdata["gameinfo"]['movimientos']:
-                sprite=SpriteMov(c1, c2, disp.font, disp.ventana, c2.sprite.rect)           #rect_final no se si esta bien por que se le añade ese atributo al crear la clase
-                # Esto no funciona por que en cada actualizacion con gameinfo, el sprite desaparece
+            	for sprite_c in disp.sprites_ciudades:
+            		if c2.id == sprite_c.ciudad.id:
+            			rect_ciudad = c.rect
+                sprite=SpriteMov(c1, c2, disp.font, disp.ventana, rect_ciudad)
                 disp.sprites_movimientos.add(sprite)
             print("Informacion actualizada")        # Para testear
     except:
