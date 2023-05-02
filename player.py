@@ -286,7 +286,7 @@ class Display():
 def on_connect(client, userdata, flags, rc):
     print(f"Se ha conseguido conectar a {broker}")
     client.publish(sala, pickle.dumps("Nueva conexion"))
-    
+
 def on_message(client, userdata, msg):
     try:
         topic = msg.topic
@@ -302,18 +302,21 @@ def on_message(client, userdata, msg):
         else:
             userdata["gameinfo"] = info
             disp = userdata["display"]
-            for c1, c2 in userdata["gameinfo"]['movimientos']:
-            	for sprite_c in disp.sprites_ciudades:
-            		if c2.id == sprite_c.ciudad.id:
-            			rect_ciudad = c.rect
-                sprite=SpriteMov(c1, c2, disp.font, disp.ventana, rect_ciudad)
+            for c1, c2 in userdata["gameinfo"]["movimientos"]:
+                for sprite_c in disp.sprites_ciudades:
+                    if c2.id == sprite_c.ciudad.id:
+                        rect_ciudad = c.rect
+                sprite = SpriteMov(c1, c2, disp.font, disp.ventana, rect_ciudad)
                 disp.sprites_movimientos.add(sprite)
-            print("Informacion actualizada")        # Para testear
+                sprite = SpriteMov(c1, c2, disp.font, disp.ventana, rect_ciudad)
+                disp.sprites_movimientos.add(sprite)
+            print("Informacion actualizada") #Para testear
     except:
-        # print error o lo de no se que traceback
-
+        #print error o lo de no se que traceback
         traceback.print_exc()
         pass
+            
+
 
 def main(broker):
     try:
