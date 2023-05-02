@@ -17,6 +17,11 @@ El jugador puede aumentar el nivel de su ciudad de forma que aumenta tanto la po
 
 El objetivo final del juego es que un jugador consiga conquista todas las ciudades enemigas de forma que acabe siendo el último jugador sobre el tablero y así, gane la partida.
 
+## Empezar a jugar
+Para iniciar el juego se debe iniciar el archivo sala.py en un único ordenador. Cada jugador que se desee conectar debe ejecutar el archivo player.py y cuando todos estén listos deben presionar la barra espaciadora para empezar a jugar. Cada jugador solo puede ejecutar acciones desde sus ciudades:
+  - Para subir una ciudad de nivel el jugador debe hacer doble click sobre ella.
+  - Para atacar una ciudad enemiga se debe hacer click primero sobre la ciudad desde la que se desea atacar y después se debe hacer click sobre la ciudad enemiga que se desea atacar.
+
 ## Código Informático
 
 La entrega consta principalmente de dos ficheros: *player.py* y *sala.py*
