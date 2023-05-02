@@ -305,6 +305,7 @@ def on_message(client, userdata, msg):
             disp = userdata["display"]
             for c1, c2 in userdata["gameinfo"]['movimientos']:
                 sprite=SpriteMov(c1, c2, disp.font, disp.ventana, c2.sprite.rect)           #rect_final no se si esta bien por que se le añade ese atributo al crear la clase
+                # Esto no funciona por que en cada actualizacion con gameinfo, el sprite desaparece
                 disp.sprites_movimientos.add(sprite)
             print("Informacion actualizada")        # Para testear
     except:
