@@ -44,7 +44,6 @@ class Ciudad():
 
 class Game():
     def __init__(self, pid, gameInfo): #A lo mejor es buena idea que cada jugador tenga su pid como parametro en el game
-        self.gameInfo = gameInfo
         self.ciudades = gameInfo['ciudades']
         self.jugadores = gameInfo['jugadores']
         self.movimientos = gameInfo['movimientos']
@@ -186,8 +185,8 @@ class SpriteMov(pygame.sprite.Sprite):
         
 
 class Display():
-    def __init__(self, jug, game):    
-        self.jug = jug # Cuando se conecte, se le asigna el numero de jugador con on_connect
+    def __init__(self, game):    
+        self.jug = game.pid # Cuando se conecte, se le asigna el numero de jugador con on_connect
         self.game = game
         self.running = game.running
         
