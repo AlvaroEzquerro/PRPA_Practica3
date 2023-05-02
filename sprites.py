@@ -58,7 +58,6 @@ class SpriteCiudad(pygame.sprite.Sprite):
         
         imagen = pygame.image.load('PNGs/castle.png').convert_alpha()
         self.image = pygame.transform.smoothscale(imagen, (90, 90))
-        #self.image.set_colorkey(BLACK)
         
         self.rect = self.image.get_rect()
         self.rect.center = ciudad.posicion
@@ -103,15 +102,16 @@ class SpriteN_tropas(pygame.sprite.Sprite):
         self.font = myFont
         self.ventana = ventana
         
-        self.image=pygame.Surface((ANCHO_VENTANA, ALTO_VENTANA))
+        self.image = pygame.Surface((ANCHO_VENTANA, ALTO_VENTANA))
         self.image.set_colorkey(BLACK)
         
-        self.default = self.font.render("5", 1, BLACK)
-        self.half = self.font.render("50%", 1, BLACK)
-        self.full = self.font.render("100%", 1, BLACK)
-        
+        self.default = self.font.render("Attack mode: 5", 1, BLACK)
+        self.half = self.font.render("Attack mode: 50%", 1, BLACK)
+        self.full = self.font.render("Attack mode: 100%", 1, BLACK)
         self.current = self.default
-        self.ventana.blit(self.default, (450, 200))
+        
+        self.posicion=np.array((ANCHO_VENTANA*0.25, ALTO_VENTANA*0.5))
+        self.ventana.blit(self.current, self.posicion+np.array((-100,0)))
         
     def update(self, mode):
         if mode == 1:
@@ -121,7 +121,7 @@ class SpriteN_tropas(pygame.sprite.Sprite):
         elif mode == 3:
             self.current = self.full
         
-        self.ventana.blit(self.current, (450, 450))
+        self.ventana.blit(self.current, self.posicion+np.array((-100,0)))
         
         
 class SpriteMov(pygame.sprite.Sprite):
@@ -151,7 +151,7 @@ class Display():
     def __init__(self, jug, game):    
         self.jug = jug # Cuando se conecte, se le asigna el numero de jugador con on_connect
         self.game = game
-        self.running=game.running
+        self.running = game.running
         
         pygame.init()
         pygame.font.init()
@@ -179,6 +179,11 @@ class Display():
             self.sprites_datos.add(dato)
             
         self.mode = 1
+        '''
+        mode = 1 -> Por defecto, se mandan 5
+        mode = 2 -> 50%
+        mode= 3 -> 100%
+        '''
         pygame.display.flip()
     
     def update(self,gameinfo):
@@ -199,15 +204,11 @@ class Display():
         self.sprites_datos.draw(self.ventana)
         self.sprites_movimientos.draw(self.ventana)
 
-    def analyze_events(self, pos, n_tropas, gameInfo):
+    def analyze_events(self, pos, gameInfo):
         '''
         'stop'->parar el programa
-        (jug, cid1, cid2, n_tropas) -> Generar movimiento
-        (jug, cid1, cid1, n_tropas) -> Subir de nivel
-        
-        n_tropas = 1 -> Por defecto, se mandan 5
-        n_tropas = 2 -> 50%
-        n_tropas = 3 -> 100%
+        (jug, cid1, cid2, mode) -> Generar movimiento
+        (jug, cid1, cid1, mode) -> Subir de nivel
         '''
         events=[]
         for event in pygame.event.get():
@@ -220,15 +221,16 @@ class Display():
                     pos = event.pos
                 else:
                     pos2 = event.pos
-                    cid1=0
-                    cid2=0
+                    cid1=-1
+                    cid2=-1
                     for c in self.sprites_ciudades:
                         if c.rect.collidepoint(pos):
-                            cid1 = c.ciudad
+                            cid1 = c.ciudad#.id
                         if c.rect.collidepoint(pos2):
-                            cid2 = c.ciudad
+                            cid2 = c.ciudad#.id
                     #events.append((self.jug, cid1, cid2, n_tropas))
-                    gameInfo['movimientos'].append((cid1, cid2, n_tropas))
+                    if cid1!=-1 and cid2!=-1:
+                        gameInfo['movimientos'].append((cid1, cid2, self.mode))
                     pos = None
             if event.type == pygame.KEYDOWN:
                 if event.unicode == '1':
@@ -238,7 +240,9 @@ class Display():
                 elif event.unicode == '3':
                     self.mode = 3
                     
-        return pos, events, n_tropas
+                pos = None
+                    
+        return pos, events
                 
                 
 # Main loop, run until window closed
@@ -251,7 +255,7 @@ while display.running:
     display.clock.tick(FPS)
     
     #Procesamos los eventos
-    pos, events, n_tropas = display.analyze_events(pos, n_tropas, gameInfo)
+    pos, events = display.analyze_events(pos, gameInfo)
     
     #Render
     display.update(gameInfo)

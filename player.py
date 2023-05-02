@@ -30,6 +30,7 @@ class Player():
 class Ciudad():
     def __init__(self, ciudadinfo):
         self.update_ciudad(ciudadinfo)
+        self.sprite = None
             
     def update(self, ciudadinfo):
         if self.id == ciudadinfo.id:
@@ -85,12 +86,11 @@ ALTO_VENTANA = 900
 
 class SpriteCiudad(pygame.sprite.Sprite):
     def __init__(self, ciudad, ventana):
-        super(SpriteCiudad, self).__init__()
+        super(SpriteCiudad, self).__init__() # Para poder hacer sprites (dibujos) tienen que heredar de la clase sprite de pygame
         self.ciudad = ciudad
         
         imagen = pygame.image.load('PNGs/castle.png').convert_alpha()
         self.image = pygame.transform.smoothscale(imagen, (90, 90))
-        #self.image.set_colorkey(BLACK)
         
         self.rect = self.image.get_rect()
         self.rect.center = ciudad.posicion
@@ -98,7 +98,7 @@ class SpriteCiudad(pygame.sprite.Sprite):
      
 class SpriteDato(pygame.sprite.Sprite):
     def __init__(self, ciudad, myFont, ventana, rect_ciudad):
-        super(SpriteDato, self).__init__()
+        super(SpriteDato, self).__init__() # Para poder hacer sprites (dibujos) tienen que heredar de la clase sprite de pygame
         self.ciudad = ciudad
         self.font = myFont
         self.ventana = ventana
@@ -128,7 +128,35 @@ class SpriteDato(pygame.sprite.Sprite):
         self.ventana.blit(self.pob, np.array(self.rect.bottomleft)+np.array((0,-15)))
         self.ventana.blit(self.nivel, np.array(self.rect.topright)+np.array((-20,10)))
         self.ventana.blit(self.prop, np.array(self.rect.topleft)+np.array((0,10)))
-
+        
+class SpriteN_tropas(pygame.sprite.Sprite):
+    def __init__(self, myFont, ventana):
+        super(SpriteN_tropas, self).__init__()
+        self.font = myFont
+        self.ventana = ventana
+        
+        self.image = pygame.Surface((ANCHO_VENTANA, ALTO_VENTANA))
+        self.image.set_colorkey(BLACK)
+        
+        self.default = self.font.render("Attack mode: 5", 1, BLACK)
+        self.half = self.font.render("Attack mode: 50%", 1, BLACK)
+        self.full = self.font.render("Attack mode: 100%", 1, BLACK)
+        self.current = self.default
+        
+        self.posicion=np.array((ANCHO_VENTANA*0.25, ALTO_VENTANA*0.5))
+        self.ventana.blit(self.current, self.posicion+np.array((-100,0)))
+        
+    def update(self, mode):
+        if mode == 1:
+            self.current = self.default
+        elif mode == 2:
+            self.current = self.half
+        elif mode == 3:
+            self.current = self.full
+        
+        self.ventana.blit(self.current, self.posicion+np.array((-100,0)))
+        
+        
 class SpriteMov(pygame.sprite.Sprite):
     def __init__(self, c1, c2, myFont, ventana, rect_final):
         super(SpriteMov, self).__init__()
@@ -143,30 +171,25 @@ class SpriteMov(pygame.sprite.Sprite):
         self.ventana = ventana
         self.rect_final = rect_final
         
-        imagen = pygame.image.load('PNGs/sword.png').convert_alpha()
+        imagen = pygame.image.load('PNGs/Ball.png').convert_alpha()
         self.image = pygame.transform.smoothscale(imagen, (40, 40))
-        #self.image.set_colorkey(WHITE)
         
         self.rect = self.image.get_rect()
         self.rect.center = self.c1.posicion
-        
-        self.n = self.font.render(f"{self.n_tropas}", 1, RED)
-        self.ventana.blit(self.n, self.rect.center)
         
         self.avance=self.vel/FPS #Avance por frame
         
     def update(self):
         self.rect.center += self.avance
-        self.image.blit(self.n, self.rect.center)
         if self.rect_final.collidepoint(self.rect.center):
             self.kill()
-
+        
 
 class Display():
-    def __init__(self, game):    
-        self.jug = game.pid # Cuando se conecte, se le asigna el numero de jugador con on_connect
+    def __init__(self, jug, game):    
+        self.jug = jug # Cuando se conecte, se le asigna el numero de jugador con on_connect
         self.game = game
-        self.running=game.running
+        self.running = game.running
         
         pygame.init()
         pygame.font.init()
@@ -174,7 +197,7 @@ class Display():
         # Definir la ventana del juego
         self.ventana = pygame.display.set_mode((ANCHO_VENTANA, ALTO_VENTANA))
         self.clock = pygame.time.Clock()
-        self.font = pygame.font.SysFont("Times New Roman", 10)
+        self.font = pygame.font.SysFont("Times New Roman", 12)
         
         pygame.display.set_caption("Juego de Conquista")
         
@@ -183,64 +206,79 @@ class Display():
         self.sprites_ciudades = pygame.sprite.Group()
         self.sprites_datos= pygame.sprite.Group()
         self.sprites_movimientos = pygame.sprite.Group()
+        self.spriteN_tropas = SpriteN_tropas(self.font, self.ventana)
         
         for c in self.game.ciudades:
             #Se generan los sprites de las ciudades
             ciudad=SpriteCiudad(c, self.ventana)
             dato=SpriteDato(c, self.font, self.ventana, ciudad.rect)
+            c.sprite = dato
             self.sprites_ciudades.add(ciudad)
             self.sprites_datos.add(dato)
             
+        self.mode = 1
+        '''
+        mode = 1 -> Por defecto, se mandan 5
+        mode = 2 -> 50%
+        mode= 3 -> 100%
+        '''
         pygame.display.flip()
-        
+    
     def update(self,gameinfo):
         #Se actualizan los datos de cada sprite
-        self.game.update(gameinfo)
         self.ventana.fill(WHITE)
-        self.sprites_ciudades.update(gameinfo)
+        self.game.update(gameinfo)
         self.sprites_datos.update()
-        for c1, c2 in gameinfo['movimientos']:
-            sprite = SpriteMov(c1, c2, self.font, self.ventana, self.game.ciudades[c2.id])
+        for c1, c2, mode in gameinfo['movimientos']:
+            sprite=SpriteMov(mov, self.font, self.ventana, c2.sprite.rect)
             self.sprites_movimientos.add(sprite)
+        gameinfo['movimientos']=[]
         self.sprites_movimientos.update()
+        self.spriteN_tropas.update(self.mode)
 
     def draw(self):
         self.sprites_ciudades.draw(self.ventana)
         self.sprites_datos.draw(self.ventana)
         self.sprites_movimientos.draw(self.ventana)
 
-    def analyze_events(self, pos):
+    def analyze_events(self, pos, gameInfo):
         '''
         'stop'->parar el programa
-        (cid1, cid2, jug) -> Generar movimiento
-        (cid1, cid1, jug) -> Subir de nivel
+        (jug, cid1, cid2, mode) -> Generar movimiento
+        (jug, cid1, cid1, mode) -> Subir de nivel
         '''
         events=[]
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running=False
                 events.append('stop')
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    events.append("quit")
-                if event.key == pygame.K_SPACE:
-                    events.append((self.jug, "ready"))
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 #Deteccion de pulsacion del raton
                 if pos == None:
                     pos = event.pos
                 else:
                     pos2 = event.pos
-                    cid1=0
-                    cid2=0
+                    cid1=-1
+                    cid2=-1
                     for c in self.sprites_ciudades:
                         if c.rect.collidepoint(pos):
                             cid1 = c.ciudad.id
                         if c.rect.collidepoint(pos2):
                             cid2 = c.ciudad.id
-                    events.append((self.jug,cid1, cid2))
+                    if cid1!=-1 and cid2!=-1:
+                        events.append((self.jug, cid1, cid2, self.mode))
                     pos = None
+            if event.type == pygame.KEYDOWN:
+                if event.unicode == '1':
+                    self.mode = 1
+                elif event.unicode == '2':
+                    self.mode = 2
+                elif event.unicode == '3':
+                    self.mode = 3
+                elif event.key == '8': #Tecla: Backspace (borrar)
+                    pos = None        
         return pos, events
+                
 
 ##################################
 
@@ -303,7 +341,7 @@ def main(broker):
                 elif ev[1] == ev[2]:
                     msg = (ev[0], "subirNivel" , ev[1])
                 else:
-                    msg = (ev[0], "movimiento", ev[1], ev[2])
+                    msg = (ev[0], "movimiento", ev[1], ev[2], ev[3])
                 client.publish(sala, pickle.dumps(msg))
 
 

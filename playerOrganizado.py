@@ -160,7 +160,7 @@ class Movimiento():
     ciudad1: Origen
     ciudad2: Destino
     '''
-    def __init__(self, ciudad1, ciudad2, n_tropas):
+    def __init__(self, ciudad1, ciudad2, mode):
         self.c1 = ciudad1
         self.c2 = ciudad2
         self.prop = ciudad1.propietario
@@ -168,10 +168,12 @@ class Movimiento():
         self.direccion = np.array(ciudad2.posicion) - np.array(ciudad1.posicion)
         self.distancia=np.linalg.norm(self.direccion)
         self.vel = 50*self.direccion/self.distancia
-        if n_tropas == None:
+        
+        tipo = [0.5, 1]
+        if mode == 1:
             self.n_tropas = 5
         else:
-            self.n_tropas = int(n_tropas*self.c1.poblacion)
+            self.n_tropas = int(tipo[mode-2]*self.c1.poblacion)
         self.duracion = self.distancia/50
         self.c1.poblacion -= self.n_tropas
         
