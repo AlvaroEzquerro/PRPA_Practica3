@@ -108,22 +108,22 @@ class SpriteDato(pygame.sprite.Sprite):
         self.rect=rect_ciudad
         
         self.pob = self.font.render(f"{int(np.floor( self.ciudad.poblacion ))}", 1, BLACK)
-        self.nivel = self.font.render(f"N{self.ciudad.nivel}", 1, BLACK)
+        self.nivel = self.font.render(f"Nivel {self.ciudad.nivel}", 1, BLACK)
         if self.ciudad.propietario==None:
             self.prop = self.font.render(f"{self.ciudad.propietario}", 1, BLACK)
         else:
-            self.prop = self.font.render(f"J{self.ciudad.propietario}", 1, BLACK)
+            self.prop = self.font.render(f"J{self.ciudad.propietario+1}", 1, BLACK)
         self.ventana.blit(self.pob, np.array(self.rect.bottomleft)+np.array((0,-15)))
         self.ventana.blit(self.nivel, np.array(self.rect.topright)+np.array((-20,10)))
         self.ventana.blit(self.prop, np.array(self.rect.topleft)+np.array((0,10)))
         
     def update(self):
         self.pob = self.font.render(f"{int(np.floor( self.ciudad.poblacion ))}", 1, BLACK)
-        self.nivel = self.font.render(f"N{self.ciudad.nivel}", 1, BLACK)
+        self.nivel = self.font.render(f"Nivel {self.ciudad.nivel}", 1, BLACK)
         if self.ciudad.propietario==None:
             self.prop = self.font.render(f"{self.ciudad.propietario}", 1, BLACK)
         else:
-            self.prop = self.font.render(f"J{self.ciudad.propietario}", 1, BLACK)
+            self.prop = self.font.render(f"J{self.ciudad.propietario+1}", 1, BLACK)
         self.ventana.blit(self.pob, np.array(self.rect.bottomleft)+np.array((0,-15)))
         self.ventana.blit(self.nivel, np.array(self.rect.topright)+np.array((-20,10)))
         self.ventana.blit(self.prop, np.array(self.rect.topleft)+np.array((0,10)))
@@ -142,7 +142,7 @@ class SpriteN_tropas(pygame.sprite.Sprite):
         self.full = self.font.render("Attack mode: 100%", 1, BLACK)
         self.current = self.default
         
-        self.posicion=np.array((ANCHO_VENTANA*0.25, ALTO_VENTANA*0.5))
+        self.posicion=np.array((ANCHO_VENTANA*0.1, ALTO_VENTANA*0.1))
         self.ventana.blit(self.current, self.posicion+np.array((-100,0)))
         
     def update(self, mode):
@@ -246,7 +246,7 @@ class Display():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running=False
-                events.append('stop')
+                events.append('quit')
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 #Deteccion de pulsacion del raton
                 if pos == None:
