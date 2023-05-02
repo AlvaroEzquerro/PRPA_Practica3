@@ -229,10 +229,6 @@ class Display():
         self.ventana.fill(WHITE)
         self.game.update(gameinfo)
         self.sprites_datos.update()
-        for c1, c2, mode in gameinfo['movimientos']:
-            sprite=SpriteMov(mov, self.font, self.ventana, c2.sprite.rect)
-            self.sprites_movimientos.add(sprite)
-        gameinfo['movimientos']=[]
         self.sprites_movimientos.update()
         self.spriteN_tropas.update(self.mode)
 
@@ -303,6 +299,10 @@ def on_message(client, userdata, msg):
             print("Pulsa espacio cuando estes preparado")
         else:
             userdata["gameinfo"] = info
+            disp = userdata["display"]
+            for c1, c2 in userdata["gameinfo"]['movimientos']:
+                sprite=SpriteMov(c1, c2, disp.font, disp.ventana, c2.sprite.rect)           #rect_final no se si esta bien por que se le añade ese atributo al crear la clase
+                disp.sprites_movimientos.add(sprite)
             print("Informacion actualizada")        # Para testear
     except:
         # print error o lo de no se que traceback
