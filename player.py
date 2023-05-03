@@ -75,7 +75,7 @@ YELLOW = (255, 255, 0)
 GREEN = (0, 255, 0)
 
 FPS = 30
-
+velocidad = 100
 ANCHO_VENTANA = 900
 ALTO_VENTANA = 900
 
@@ -163,13 +163,13 @@ class SpriteMov(pygame.sprite.Sprite):
         self.prop = c1.propietario # Por si queremos ponerlo de colores en funcion de quien ataque
         
         direccion = np.array(c2.posicion) - np.array(c1.posicion)
-        self.vel = 50*direccion/np.linalg.norm(direccion)
+        self.vel = velocidad*direccion/np.linalg.norm(direccion)
         
         self.font = myFont
         self.ventana = ventana
         self.rect_final = rect_final
         
-        imagen = pygame.image.load('PNGs/Ball.png').convert_alpha()
+        imagen = pygame.image.load('PNGs/ball.png').convert_alpha()
         self.image = pygame.transform.smoothscale(imagen, (40, 40))
         
         self.rect = self.image.get_rect()
