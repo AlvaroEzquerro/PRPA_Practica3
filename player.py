@@ -305,7 +305,7 @@ def on_message(client, userdata, msg):
             for c1, c2 in userdata["gameinfo"]["movimientos"]:
                 for sprite_c in disp.sprites_ciudades:
                     if c2.id == sprite_c.ciudad.id:
-                        rect_ciudad = c.rect
+                        rect_ciudad = sprite_c.rect
                 sprite = SpriteMov(c1, c2, disp.font, disp.ventana, rect_ciudad)
                 disp.sprites_movimientos.add(sprite)
                 sprite = SpriteMov(c1, c2, disp.font, disp.ventana, rect_ciudad)
