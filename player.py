@@ -266,7 +266,11 @@ class Display():
                             cid2 = c.ciudad.id
                     if cid1!=-1 and cid2!=-1:
                         events.append((self.jug, cid1, cid2, self.mode))
-                    pos = None
+                        pos, pos2 = None, None
+                    elif cid1 == -1:
+                        pos = pos2
+                    else:
+                        pos, pos2 = None, None
             if event.type == pygame.KEYDOWN:
                 if event.unicode == '1':
                     self.mode = 1
