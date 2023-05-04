@@ -183,7 +183,7 @@ class SpriteMov(pygame.sprite.Sprite):
         
     def update(self):
         self.tiempo = (time.time()- self.tiempoInicial)/self.tiempoTotal
-        self.rect.center = self.c1.rect.center + self.tiempo*self.direccion
+        self.rect.center = np.array(self.c1.posicion) + self.tiempo*self.direccion
         if self.tiempo > 1:
             self.kill()
         
@@ -311,7 +311,7 @@ def on_message(client, userdata, msg):
                 for sprite_c in disp.sprites_ciudades:
                     if c2.id == sprite_c.ciudad.id:
                         rect_ciudad = sprite_c.rect
-                sprite = SpriteMov(c1, c2, disp.font, disp.ventana, rect_ciudad)
+                sprite = SpriteMov(c1, c2, disp, rect_ciudad)
                 disp.sprites_movimientos.add(sprite)
             #print("Informacion actualizada") #Para testear
     except:
@@ -369,9 +369,9 @@ def main(broker):
 
 if __name__=="__main__":
     broker = "simba.fdi.ucm.es"
-    sala = "clients/sala"
-    players = "clients/players"
-    new_player = "clients/new_players"
+    sala = "clients/conquista/sala"
+    players = "clients/conquista/players"
+    new_player = "clients/conquista/new_players"
     if len(sys.argv)>1:
         broker = sys.argv[1]
     main(broker)
