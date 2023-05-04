@@ -1,18 +1,3 @@
-"""
-Por hacer:
-    Decidir como hacer los movimientos y como se elimina el sprite de este (mañana lo hablamos en clase para ver como compatibilizarlo con pygame)
-    Copiar y pegar el código de Sprites aqui
-    Funciones analyze_events, refresh y tick en display
-            analyze_events estaria guay que tuviese un evento que al pulsar espacio, el jugador mande un ready. Cuando todos los conectados a la sala estan ready empieza la partida
-"""
-
-"""
-Observaciones:
-    Usamos 2 topics:
-        En el topic clients/sala, solo escribe la sala y aqui es donde se envian los gameinfo y los indices de los jugadores cuando se conectan
-        En el topic clients/players escriben los jugadores, con el formato (pid, evento) o "Nueva Conexion" para recibir su pid
-"""
-
 import sys, os, time, traceback, pickle, pygame
 import numpy as np
 from paho.mqtt.client import Client
@@ -56,7 +41,7 @@ class Ciudad():
 #DEFINIMOS LA CLASE GAME
 
 class Game():
-    def __init__(self, pid, gameInfo): #A lo mejor es buena idea que cada jugador tenga su pid como parametro en el game
+    def __init__(self, pid, gameInfo): 
         self.ciudades = gameInfo['ciudades']
         self.jugadores = gameInfo['jugadores']
         self.movimientos = gameInfo['movimientos']
@@ -69,8 +54,6 @@ class Game():
         for j, p in enumerate(self.jugadores):
             p.update(gameInfo['jugadores'][j])
         self.running = gameInfo['is_running']
-        #Habria que definir bien como se gestionan los ataques. Quizas lo mejor sea que cada jugador tenga un almacen propio
-        #con los ataques que realizar, que gameInfo solo le de la orden
         
     def is_running(self):
         return self.running
@@ -240,10 +223,6 @@ class Display():
         #Se actualizan los datos de cada sprite
         self.ventana.fill(WHITE)
         
-        """ Estaria wapo que aqui en vez de pintarse de blanco,
-        se plotease el fondo"""
-        
-        
         self.game.update(gameinfo)
         self.sprites_datos.update()
         self.sprites_movimientos.update()
@@ -320,20 +299,22 @@ def on_message(client, userdata, msg):
             userdata["gameinfo"] = info[1]
             userdata["display"] = Display(Game(userdata["pid"], userdata["gameinfo"]))
             print(userdata["display"])
-            print(f"Iniciando como jugador {info[0]}")
+            print(f"Iniciando como jugador {info[0]+1}")
             print("Pulsa espacio cuando estes preparado")
         else:
-            userdata["gameinfo"] = info
-            disp = userdata["display"]
-            for c1, c2 in userdata["gameinfo"]["movimientos"]:
-                for sprite_c in disp.sprites_ciudades:
-                    if c2.id == sprite_c.ciudad.id:
-                        rect_ciudad = sprite_c.rect
-                sprite = SpriteMov(c1, c2, disp, rect_ciudad)
-                disp.sprites_movimientos.add(sprite)
-            #print("Informacion actualizada") #Para testear
+            if info == 'terminado':
+                userdata['display'].running = False
+            else:
+                userdata["gameinfo"] = info
+                disp = userdata["display"]
+                for c1, c2 in userdata["gameinfo"]["movimientos"]:
+                    for sprite_c in disp.sprites_ciudades:
+                        if c2.id == sprite_c.ciudad.id:
+                            rect_ciudad = sprite_c.rect
+                    sprite = SpriteMov(c1, c2, disp, rect_ciudad)
+                    disp.sprites_movimientos.add(sprite)
     except:
-        #print error o lo de no se que traceback
+        print("Ha habido un error")
         traceback.print_exc()
         pass
             
@@ -379,9 +360,10 @@ def main(broker):
             pygame.display.flip()
 
     except:
+        print("Ha habido un error")
         traceback.print_exc()
-        # Para que es esta llamada?
     finally:
+        print('El juego ha terminado')
         pygame.quit()
         
 
