@@ -91,11 +91,12 @@ class SpriteCiudad(pygame.sprite.Sprite):
         
      
 class SpriteDato(pygame.sprite.Sprite):
-    def __init__(self, ciudad, myFont, ventana, rect_ciudad):
+    def __init__(self, ciudad, display, rect_ciudad):
         super(SpriteDato, self).__init__() # Para poder hacer sprites (dibujos) tienen que heredar de la clase sprite de pygame
         self.ciudad = ciudad
-        self.font = myFont
-        self.ventana = ventana
+        self.display = display
+        self.font = display.font
+        self.ventana = display.ventana
         
         self.image=pygame.Surface((ANCHO_VENTANA, ALTO_VENTANA))
         self.image.set_colorkey(BLACK)
@@ -113,12 +114,19 @@ class SpriteDato(pygame.sprite.Sprite):
         self.ventana.blit(self.prop, np.array(self.rect.topleft)+np.array((0,10)))
         
     def update(self):
-        self.pob = self.font.render(f"{int(np.floor( self.ciudad.poblacion ))}", 1, BLACK)
-        self.nivel = self.font.render(f"Nivel {self.ciudad.nivel}", 1, BLACK)
-        if self.ciudad.propietario==None:
-            self.prop = self.font.render(f"{self.ciudad.propietario}", 1, BLACK)
+        if self.display.jug == self.ciudad.propietario:
+            color = BLUE
+        elif self.ciudad.propietario == None:
+            color = BLACK
         else:
-            self.prop = self.font.render(f"J{self.ciudad.propietario+1}", 1, BLACK)
+            color = RED
+            
+        self.pob = self.font.render(f"{int(np.floor( self.ciudad.poblacion ))}", 1, color)
+        self.nivel = self.font.render(f"Nivel {self.ciudad.nivel}", 1, color)
+        if self.ciudad.propietario==None:
+            self.prop = self.font.render(f"{self.ciudad.propietario}", 1, color)
+        else:
+            self.prop = self.font.render(f"J{self.ciudad.propietario+1}", 1, color)
         self.ventana.blit(self.pob, np.array(self.rect.bottomleft)+np.array((0,-15)))
         self.ventana.blit(self.nivel, np.array(self.rect.topright)+np.array((-20,10)))
         self.ventana.blit(self.prop, np.array(self.rect.topleft)+np.array((0,10)))
@@ -206,6 +214,7 @@ class Display():
         
         # Crear grupo de sprites para las ciudades
         self.ventana.fill(WHITE) #Rellenamos el fondo de blanco
+        self.background = pygame.image.load("PNGs/background01.png")
         self.sprites_ciudades = pygame.sprite.Group()
         self.sprites_datos= pygame.sprite.Group()
         self.sprites_movimientos = pygame.sprite.Group()
@@ -214,7 +223,7 @@ class Display():
         for c in self.game.ciudades:
             #Se generan los sprites de las ciudades
             ciudad=SpriteCiudad(c, self.ventana)
-            dato=SpriteDato(c, self.font, self.ventana, ciudad.rect)
+            dato=SpriteDato(c, self, ciudad.rect)
             c.sprite = dato
             self.sprites_ciudades.add(ciudad)
             self.sprites_datos.add(dato)
@@ -230,6 +239,11 @@ class Display():
     def update(self,gameinfo):
         #Se actualizan los datos de cada sprite
         self.ventana.fill(WHITE)
+        
+        """ Estaria wapo que aqui en vez de pintarse de blanco,
+        se plotease el fondo"""
+        
+        
         self.game.update(gameinfo)
         self.sprites_datos.update()
         self.sprites_movimientos.update()
