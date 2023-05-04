@@ -18,6 +18,20 @@ import numpy as np
 from paho.mqtt.client import Client
 
 
+
+BLACK = (0,0,0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
+GREEN = (0, 255, 0)
+
+FPS = 30
+velocidadMovimientos = 100
+ANCHO_VENTANA = 900
+ALTO_VENTANA = 900
+
+
 class Player():
     def __init__(self, playerinfo):
         self.update_jugador(playerinfo)
@@ -63,24 +77,6 @@ class Game():
     
     def stop(self):
         self.running = False
-
-################################
-#AQUI IRIAN TODOS LOS SPRITES Y EL DISPLAY
-
-BLACK = (0,0,0)
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-BLUE = (0, 0, 255)
-YELLOW = (255, 255, 0)
-GREEN = (0, 255, 0)
-
-FPS = 30
-velocidad = 100
-ANCHO_VENTANA = 900
-ALTO_VENTANA = 900
-
-
-
 
 class SpriteCiudad(pygame.sprite.Sprite):
     def __init__(self, ciudad, ventana):
@@ -156,22 +152,24 @@ class SpriteN_tropas(pygame.sprite.Sprite):
         
         
 class SpriteMov(pygame.sprite.Sprite):
-    def __init__(self, c1, c2, myFont, ventana, rect_final):
+    def __init__(self, c1, c2, display, rect_final):
         super(SpriteMov, self).__init__()
         self.c1 = c1
         self.c2 = c2
         self.prop = c1.propietario # Por si queremos ponerlo de colores en funcion de quien ataque
         
-        direccion = np.array(c2.posicion) - np.array(c1.posicion)
-        self.vel = velocidad*direccion/np.linalg.norm(direccion)
+        self.direccion = np.array(c2.posicion) - np.array(c1.posicion)
+        distancia = np.linalg.norm(self.direccion)
+        self.tiempoTotal = distancia/velocidadMovimientos
+        self.tiempoInicial = time.time()
+        self.tiempo = 0
         
-        self.font = myFont
-        self.ventana = ventana
+        self.display = display
+        self.font = display.font
+        self.ventana = display.ventana
         self.rect_final = rect_final
         
-        if self.prop == c2.propietario:
-            archivo = 'PNGs/greenBall.png'
-        elif c2.propietario == None:
+        if c1.propietario == display.jug:
             archivo = 'PNGs/blueBall.png'
         else:
             archivo = 'PNGs/redBall.png'
@@ -181,12 +179,12 @@ class SpriteMov(pygame.sprite.Sprite):
         
         self.rect = self.image.get_rect()
         self.rect.center = self.c1.posicion
-        
-        self.avance=self.vel/FPS #Avance por frame
+
         
     def update(self):
-        self.rect.center += self.avance
-        if self.rect_final.collidepoint(self.rect.center):
+        self.tiempo = (time.time()- self.tiempoInicial)/self.tiempoTotal
+        self.rect.center = self.c1.rect.center + self.tiempo*self.direccion
+        if self.tiempo > 1:
             self.kill()
         
 
