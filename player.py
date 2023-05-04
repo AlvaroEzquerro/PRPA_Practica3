@@ -169,7 +169,14 @@ class SpriteMov(pygame.sprite.Sprite):
         self.ventana = ventana
         self.rect_final = rect_final
         
-        imagen = pygame.image.load('PNGs/ball.png').convert_alpha()
+        if self.prop == c2.propietario:
+            archivo = 'PNGs/greenBall.png'
+        elif c2.propietario == None:
+            archivo = 'PNGs/blueBall.png'
+        else:
+            archivo = 'PNGs/redBall.png'
+            
+        imagen = pygame.image.load(archivo).convert_alpha()
         self.image = pygame.transform.smoothscale(imagen, (40, 40))
         
         self.rect = self.image.get_rect()
@@ -308,9 +315,7 @@ def on_message(client, userdata, msg):
                         rect_ciudad = sprite_c.rect
                 sprite = SpriteMov(c1, c2, disp.font, disp.ventana, rect_ciudad)
                 disp.sprites_movimientos.add(sprite)
-                sprite = SpriteMov(c1, c2, disp.font, disp.ventana, rect_ciudad)
-                disp.sprites_movimientos.add(sprite)
-            print("Informacion actualizada") #Para testear
+            #print("Informacion actualizada") #Para testear
     except:
         #print error o lo de no se que traceback
         traceback.print_exc()
