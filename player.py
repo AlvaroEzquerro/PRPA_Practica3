@@ -117,7 +117,7 @@ class SpriteDato(pygame.sprite.Sprite):
 class SpriteN_tropas(pygame.sprite.Sprite):
     def __init__(self, myFont, ventana):
         super(SpriteN_tropas, self).__init__()
-        self.font = myFont
+        self.font = pygame.font.SysFont("Times New Roman", 20)
         self.ventana = ventana
         
         self.image = pygame.Surface((ANCHO_VENTANA, ALTO_VENTANA))
@@ -128,8 +128,8 @@ class SpriteN_tropas(pygame.sprite.Sprite):
         self.full = self.font.render("Attack mode: 100%", 1, BLACK)
         self.current = self.default
         
-        self.posicion=np.array((ANCHO_VENTANA*0.1, ALTO_VENTANA*0.1))
-        self.ventana.blit(self.current, self.posicion+np.array((-100,0)))
+        self.posicion=np.array((ANCHO_VENTANA*0.5, ALTO_VENTANA*0))
+        self.ventana.blit(self.current, self.posicion+np.array((-50,20)))
         
     def update(self, mode):
         if mode == 1:
@@ -139,7 +139,7 @@ class SpriteN_tropas(pygame.sprite.Sprite):
         elif mode == 3:
             self.current = self.full
         
-        self.ventana.blit(self.current, self.posicion+np.array((-100,0)))
+        self.ventana.blit(self.current, self.posicion+np.array((-50,20)))
         
         
 class SpriteMov(pygame.sprite.Sprite):
@@ -198,6 +198,7 @@ class Display():
         # Crear grupo de sprites para las ciudades
         self.ventana.fill(WHITE) #Rellenamos el fondo de blanco
         self.background = pygame.image.load("PNGs/background01.png")
+        self.background = pygame.transform.smoothscale(self.background, (ANCHO_VENTANA, ALTO_VENTANA))
         self.sprites_ciudades = pygame.sprite.Group()
         self.sprites_datos= pygame.sprite.Group()
         self.sprites_movimientos = pygame.sprite.Group()
@@ -222,6 +223,7 @@ class Display():
     def update(self,gameinfo):
         #Se actualizan los datos de cada sprite
         self.ventana.fill(WHITE)
+        self.ventana.blit(self.background, (0, 0))
         
         self.game.update(gameinfo)
         self.sprites_datos.update()
