@@ -16,6 +16,7 @@ velocidadMovimientos = 100
 ANCHO_VENTANA = 900
 ALTO_VENTANA = 900
 
+# Primero definimos las clases para las ciudades y los jugadores que son necesarias para que pickle pueda hacer la transformacion, aunque no necesitan los mismos metodos
 
 class Player():
     def __init__(self, playerinfo):
@@ -38,7 +39,8 @@ class Ciudad():
             self.produccion = ciudadinfo.produccion
             self.max_capacidad = ciudadinfo.max_capacidad
         
-#DEFINIMOS LA CLASE GAME
+        
+# Definimos la clase Game para que coleccione toda la informacion necesaria para el display
 
 class Game():
     def __init__(self, pid, gameInfo): 
@@ -61,60 +63,79 @@ class Game():
     def stop(self):
         self.running = False
 
+
+# Definimos los objetos que van a actuar como sprites, estos solo existen en el player.py
+
 class SpriteCiudad(pygame.sprite.Sprite):
     def __init__(self, ciudad, ventana):
-        super(SpriteCiudad, self).__init__() # Para poder hacer sprites (dibujos) tienen que heredar de la clase sprite de pygame
+        # Hereda de la clase Sprite del modulo pygame
+        super(SpriteCiudad, self).__init__()
         self.ciudad = ciudad
         
+        # Escalamos la imagen del castillo
         imagen = pygame.image.load('PNGs/castle.png').convert_alpha()
         self.image = pygame.transform.smoothscale(imagen, (90, 90))
         
         self.rect = self.image.get_rect()
         self.rect.center = ciudad.posicion
-        
+        # Las ciudades no cambian durante la partida, por lo que no necesitan un update
      
 class SpriteDato(pygame.sprite.Sprite):
+    # Esta es la informacion en forma de texto que acompaña a cada ciudad y debe actualizarse en todo momento
     def __init__(self, ciudad, display, rect_ciudad):
-        super(SpriteDato, self).__init__() # Para poder hacer sprites (dibujos) tienen que heredar de la clase sprite de pygame
+        super(SpriteDato, self).__init__()
         self.ciudad = ciudad
         self.display = display
         self.font = display.font
         self.ventana = display.ventana
+        
+        # El color indicará si es una ciudad aliada, enemiga o propia
+        if self.display.jug == self.ciudad.propietario:
+            self.color = BLUE
+        elif self.ciudad.propietario == None:
+            self.color = BLACK
+        else:
+            self.color = RED
         
         self.image=pygame.Surface((ANCHO_VENTANA, ALTO_VENTANA))
         self.image.set_colorkey(BLACK)
         
         self.rect=rect_ciudad
         
-        self.pob = self.font.render(f"{int(np.floor( self.ciudad.poblacion ))}", 1, BLACK)
-        self.nivel = self.font.render(f"Nivel {self.ciudad.nivel}", 1, BLACK)
-        if self.ciudad.propietario==None:
-            self.prop = self.font.render(f"{self.ciudad.propietario}", 1, BLACK)
+        # Creamos los textos
+        self.pob = self.font.render(f"{int(np.floor( self.ciudad.poblacion ))}", 1, self.color)
+        self.nivel = self.font.render(f"Nivel {self.ciudad.nivel}", 1, self.color)
+        if self.ciudad.propietario == None:
+            self.prop = self.font.render(f"{self.ciudad.propietario}", 1, self.color)
         else:
-            self.prop = self.font.render(f"J{self.ciudad.propietario+1}", 1, BLACK)
+            self.prop = self.font.render(f"J{self.ciudad.propietario+1}", 1, self.color)
+        # Los mostramos por pantalla    
         self.ventana.blit(self.pob, np.array(self.rect.bottomleft)+np.array((0,-15)))
         self.ventana.blit(self.nivel, np.array(self.rect.topright)+np.array((-20,10)))
         self.ventana.blit(self.prop, np.array(self.rect.topleft)+np.array((0,10)))
         
-    def update(self):
+    def update(self):            
+        # Actualizamos los textos
         if self.display.jug == self.ciudad.propietario:
-            color = BLUE
+            self.color = BLUE
         elif self.ciudad.propietario == None:
-            color = BLACK
+            self.color = BLACK
         else:
-            color = RED
-            
-        self.pob = self.font.render(f"{int(np.floor( self.ciudad.poblacion ))}", 1, color)
-        self.nivel = self.font.render(f"Nivel {self.ciudad.nivel}", 1, color)
+            self.color = RED
+        
+        self.pob = self.font.render(f"{int(np.floor( self.ciudad.poblacion ))}", 1, self.color)
+        self.nivel = self.font.render(f"Nivel {self.ciudad.nivel}", 1, self.color)
         if self.ciudad.propietario==None:
-            self.prop = self.font.render(f"{self.ciudad.propietario}", 1, color)
+            self.prop = self.font.render(f"{self.ciudad.propietario}", 1, self.color)
         else:
-            self.prop = self.font.render(f"J{self.ciudad.propietario+1}", 1, color)
+            self.prop = self.font.render(f"J{self.ciudad.propietario+1}", 1, self.color)
+        # Los mostramos por pantalla
         self.ventana.blit(self.pob, np.array(self.rect.bottomleft)+np.array((0,-15)))
         self.ventana.blit(self.nivel, np.array(self.rect.topright)+np.array((-20,10)))
         self.ventana.blit(self.prop, np.array(self.rect.topleft)+np.array((0,10)))
         
 class SpriteN_tropas(pygame.sprite.Sprite):
+    # Este texto indica el Modo de Desplazamiento seleccionado
     def __init__(self, myFont, ventana):
         super(SpriteN_tropas, self).__init__()
         self.font = pygame.font.SysFont("Times New Roman", 20)
@@ -123,9 +144,9 @@ class SpriteN_tropas(pygame.sprite.Sprite):
         self.image = pygame.Surface((ANCHO_VENTANA, ALTO_VENTANA))
         self.image.set_colorkey(BLACK)
         
-        self.default = self.font.render("Attack mode: 5", 1, BLACK)
-        self.half = self.font.render("Attack mode: 50%", 1, BLACK)
-        self.full = self.font.render("Attack mode: 100%", 1, BLACK)
+        self.default = self.font.render("Modo de Desplazamiento: 5", 1, BLACK)
+        self.half = self.font.render("Modo de Desplazamiento: 50%", 1, BLACK)
+        self.full = self.font.render("Modo de Desplazamiento: 100%", 1, BLACK)
         self.current = self.default
         
         self.posicion=np.array((ANCHO_VENTANA*0.5, ALTO_VENTANA*0))
@@ -138,16 +159,16 @@ class SpriteN_tropas(pygame.sprite.Sprite):
             self.current = self.half
         elif mode == 3:
             self.current = self.full
-        
         self.ventana.blit(self.current, self.posicion+np.array((-50,20)))
         
         
 class SpriteMov(pygame.sprite.Sprite):
-    def __init__(self, c1, c2, display, rect_final):
+    # Estos sprites representarán los desplazamientos en curso, asi como si son propios o de otro jugador
+    # Se generan on_message y se añaden al display a traves de las ciudades de origen y destino
+    def __init__(self, c1, c2, display):
         super(SpriteMov, self).__init__()
         self.c1 = c1
         self.c2 = c2
-        self.prop = c1.propietario # Por si queremos ponerlo de colores en funcion de quien ataque
         
         self.direccion = np.array(c2.posicion) - np.array(c1.posicion)
         distancia = np.linalg.norm(self.direccion)
@@ -158,7 +179,6 @@ class SpriteMov(pygame.sprite.Sprite):
         self.display = display
         self.font = display.font
         self.ventana = display.ventana
-        self.rect_final = rect_final
         
         if c1.propietario == display.jug:
             archivo = 'PNGs/blueBall.png'
@@ -173,6 +193,7 @@ class SpriteMov(pygame.sprite.Sprite):
 
         
     def update(self):
+        # Recalcula su posicion en funcion del tiempo y cuando este acaba, elimina el sprite para que no consuma recursos
         self.tiempo = (time.time()- self.tiempoInicial)/self.tiempoTotal
         self.rect.center = np.array(self.c1.posicion) + self.tiempo*self.direccion
         if self.tiempo > 1:
@@ -180,6 +201,7 @@ class SpriteMov(pygame.sprite.Sprite):
         
 
 class Display():
+    # Esta es la clase principal encargada de ejecutar todo el codigo de pygame
     def __init__(self, game):    
         self.jug = game.pid # Cuando se conecte, se le asigna el numero de jugador con on_connect
         self.game = game
@@ -205,9 +227,9 @@ class Display():
         self.spriteN_tropas = SpriteN_tropas(self.font, self.ventana)
         
         for c in self.game.ciudades:
-            #Se generan los sprites de las ciudades
-            ciudad=SpriteCiudad(c, self.ventana)
-            dato=SpriteDato(c, self, ciudad.rect)
+            #Se generan los sprites de las ciudades y los datos de estas
+            ciudad = SpriteCiudad(c, self.ventana)
+            dato = SpriteDato(c, self, ciudad.rect)
             c.sprite = dato
             self.sprites_ciudades.add(ciudad)
             self.sprites_datos.add(dato)
@@ -273,7 +295,7 @@ class Display():
                     self.mode = 2
                 elif event.unicode == '3':
                     self.mode = 3
-                elif event.key == '8': #Tecla: Backspace (borrar)
+                elif event.key == '8': #Tecla: Backspace (borrar accion anterior, tambien puede hacerse pulsando en un espacio en blanco)
                     pos = None
                 elif event.key == pygame.K_ESCAPE:
                     events.append("quit")
@@ -282,10 +304,6 @@ class Display():
         return pos, events
                 
 
-##################################
-
-
-#FUNCIONES MQTT
 
 def on_connect(client, userdata, flags, rc):
     print(f"Se ha conseguido conectar a {broker}")
@@ -309,11 +327,9 @@ def on_message(client, userdata, msg):
             else:
                 userdata["gameinfo"] = info
                 disp = userdata["display"]
+                # Añadimos los movimientos aqui por que estos solo aparecerán una vez en el gameinfo, y si la sala actualizase el gameinfo 2 veces antes de que el display lo añadiese, desaparecerian estos sprites
                 for c1, c2 in userdata["gameinfo"]["movimientos"]:
-                    for sprite_c in disp.sprites_ciudades:
-                        if c2.id == sprite_c.ciudad.id:
-                            rect_ciudad = sprite_c.rect
-                    sprite = SpriteMov(c1, c2, disp, rect_ciudad)
+                    sprite = SpriteMov(c1, c2, disp)
                     disp.sprites_movimientos.add(sprite)
     except:
         print("Ha habido un error")
@@ -347,16 +363,18 @@ def main(broker):
                     game.stop()
                     display.running = False
                     msg = ev
+                # ev[0] es el id del jugador que ejecuta la accion
                 elif ev[1] == "ready":
                     msg = ev
                     client.subscribe(players)
+                # ev[1] y ev[2] son las ciudades sobre las que ha pulsado el jugador
                 elif ev[1] == ev[2]:
                     msg = (ev[0], "subirNivel" , ev[1])
+                # ev[3] es el modo de desplazamiento seleccionado
                 else:
                     msg = (ev[0], "movimiento", ev[1], ev[2], ev[3])
                 client.publish(sala, pickle.dumps(msg))
-
-
+                
             display.update(userdata["gameinfo"])
             display.draw()
             pygame.display.flip()
