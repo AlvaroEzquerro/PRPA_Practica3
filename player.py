@@ -3,7 +3,7 @@ import numpy as np
 from paho.mqtt.client import Client
 
 
-
+#Colores básicos para los gráficos
 BLACK = (0,0,0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
@@ -23,7 +23,7 @@ class Player():
         self.update_jugador(playerinfo)
 
     def update(self, playerinfo):
-        if self.pid == playerinfo.pid: #Por si acaso comprobamos que tengan el mismo pid
+        if self.pid == playerinfo.pid: 
             self.ciudades = playerinfo.ciudades
 
     
