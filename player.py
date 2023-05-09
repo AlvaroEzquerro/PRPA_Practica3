@@ -219,8 +219,8 @@ class Display():
         
         # Crear grupo de sprites para las ciudades
         self.ventana.fill(WHITE) #Rellenamos el fondo de blanco
-        self.background = pygame.image.load("PNGs/background01.png")
-        self.background = pygame.transform.smoothscale(self.background, (ANCHO_VENTANA, ALTO_VENTANA))
+        self.background = pygame.image.load("PNGs/mapa.png")
+        #self.background = pygame.transform.smoothscale(self.background, (ANCHO_VENTANA, ALTO_VENTANA))
         self.sprites_ciudades = pygame.sprite.Group()
         self.sprites_datos= pygame.sprite.Group()
         self.sprites_movimientos = pygame.sprite.Group()
