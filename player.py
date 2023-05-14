@@ -10,6 +10,7 @@ RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 GREEN = (0, 255, 0)
+ORANGE = (255, 128, 0)
 
 FPS = 30
 velocidadMovimientos = 100
@@ -91,7 +92,7 @@ class SpriteDato(pygame.sprite.Sprite):
         
         # El color indicará si es una ciudad aliada, enemiga o propia
         if self.display.jug == self.ciudad.propietario:
-            self.color = BLUE
+            self.color = WHITE
         elif self.ciudad.propietario == None:
             self.color = BLACK
         else:
@@ -118,7 +119,7 @@ class SpriteDato(pygame.sprite.Sprite):
     def update(self):            
         # Actualizamos los textos
         if self.display.jug == self.ciudad.propietario:
-            self.color = BLUE
+            self.color = WHITE
         elif self.ciudad.propietario == None:
             self.color = BLACK
         else:
