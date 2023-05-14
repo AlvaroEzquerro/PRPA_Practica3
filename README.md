@@ -16,7 +16,7 @@ El jugador puede aumentar el nivel de sus ciudades haciendo dos veces click sobr
 El jugador puede hacer click en una ciudad propia y después hacer click en cualquier otra ciudad para mandar tropas desde la primera ciudad a la segunda. La cantidad de tropas enviadas dependerá del Modo de Desplazamiento seleccionado. Al ser enviadas, se resta ese número de tropas a la ciudad de origen, y cuando el desplazamiento alcanza su destino, realiza una acción en función de los propietarios de las ciudades. Si el propietario de la ciudad de origen en el momento de crear el desplazamiento es el mismo que el de la ciudad de destino, el movimiento se transforma en un Refuerzo, incrementando el número de tropas defendiendo la ciudad. En cambio, si es distinto, este será un Ataque y reducirá el número de tropas de la ciudad de destino y, en caso de reducirlas a 0, el jugador atacante conquista la ciudad del enemigo y está pasa a ser de su propiedad.
 
 - **Cambiar Modo de Desplazamiento**
-El jugador puede controlar el número de tropas que envia por cada desplazamiento, pulsando las teclas 1, 2 o 3 para mandar 5 unidades, el 50% o el 100% de ls población de la ciudad de origen.
+El jugador puede controlar el número de tropas que envia por cada desplazamiento, pulsando las teclas 1, 2 o 3 para mandar 5 unidades, el 50% o el 100% de la población de la ciudad de origen.
 
 
 El objetivo final conquistar todas las ciudades enemigas, de forma que un jugador posea todas las ciudades y así, gane la partida.

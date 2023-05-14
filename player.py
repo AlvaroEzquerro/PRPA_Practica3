@@ -104,9 +104,10 @@ class SpriteDato(pygame.sprite.Sprite):
         
         # Creamos los textos
         self.pob = self.font.render(f"{int(np.floor( self.ciudad.poblacion ))}", 1, self.color)
-        self.nivel = self.font.render(f"Nivel {self.ciudad.nivel}", 1, self.color)
+        self.nivel = self.font.render(f"N{self.ciudad.nivel}", 1, self.color)
         if self.ciudad.propietario == None:
-            self.prop = self.font.render(f"{self.ciudad.propietario}", 1, self.color)
+            self.prop = self.font.render("", 1, self.color)
+            #self.prop = self.font.render(f"{self.ciudad.propietario}", 1, self.color)
         else:
             self.prop = self.font.render(f"J{self.ciudad.propietario+1}", 1, self.color)
         # Los mostramos por pantalla    
@@ -124,9 +125,10 @@ class SpriteDato(pygame.sprite.Sprite):
             self.color = RED
         
         self.pob = self.font.render(f"{int(np.floor( self.ciudad.poblacion ))}", 1, self.color)
-        self.nivel = self.font.render(f"Nivel {self.ciudad.nivel}", 1, self.color)
+        self.nivel = self.font.render(f"N{self.ciudad.nivel}", 1, self.color)
         if self.ciudad.propietario==None:
-            self.prop = self.font.render(f"{self.ciudad.propietario}", 1, self.color)
+            self.prop = self.font.render("", 1, self.color)
+            #self.prop = self.font.render(f"{self.ciudad.propietario}", 1, self.color)
         else:
             self.prop = self.font.render(f"J{self.ciudad.propietario+1}", 1, self.color)
         # Los mostramos por pantalla
@@ -138,7 +140,7 @@ class SpriteN_tropas(pygame.sprite.Sprite):
     # Este texto indica el Modo de Desplazamiento seleccionado
     def __init__(self, myFont, ventana):
         super(SpriteN_tropas, self).__init__()
-        self.font = pygame.font.SysFont("Times New Roman", 20)
+        self.font = pygame.font.SysFont("Times New Roman", 15)
         self.ventana = ventana
         
         self.image = pygame.Surface((ANCHO_VENTANA, ALTO_VENTANA))
@@ -149,8 +151,8 @@ class SpriteN_tropas(pygame.sprite.Sprite):
         self.full = self.font.render("Modo de Desplazamiento: 100%", 1, BLACK)
         self.current = self.default
         
-        self.posicion=np.array((ANCHO_VENTANA*0.5, ALTO_VENTANA*0))
-        self.ventana.blit(self.current, self.posicion+np.array((-50,20)))
+        self.posicion=np.array((ANCHO_VENTANA*0, ALTO_VENTANA*0))
+        self.ventana.blit(self.current, self.posicion+np.array((40,0)))
         
     def update(self, mode):
         if mode == 1:
@@ -159,7 +161,7 @@ class SpriteN_tropas(pygame.sprite.Sprite):
             self.current = self.half
         elif mode == 3:
             self.current = self.full
-        self.ventana.blit(self.current, self.posicion+np.array((-50,20)))
+        self.ventana.blit(self.current, self.posicion+np.array((40,0)))
         
         
 class SpriteMov(pygame.sprite.Sprite):
@@ -213,7 +215,7 @@ class Display():
         # Definir la ventana del juego
         self.ventana = pygame.display.set_mode((ANCHO_VENTANA, ALTO_VENTANA))
         self.clock = pygame.time.Clock()
-        self.font = pygame.font.SysFont("Times New Roman", 12)
+        self.font = pygame.font.SysFont("Times New Roman", 15)
         
         pygame.display.set_caption("Juego de Conquista")
         
