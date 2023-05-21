@@ -14,7 +14,7 @@ ORANGE = (255, 128, 0)
 
 FPS = 30
 velocidadMovimientos = 100
-ANCHO_VENTANA = 900
+ANCHO_VENTANA = 1200
 ALTO_VENTANA = 900
 
 # Primero definimos las clases para las ciudades y los jugadores que son necesarias para que pickle pueda hacer la transformacion, aunque no necesitan los mismos metodos
@@ -34,6 +34,7 @@ class Ciudad():
             
     def update(self, ciudadinfo):
         if self.id == ciudadinfo.id:
+            self.posicion = ciudadinfo.posicion
             self.propietario = ciudadinfo.propietario
             self.poblacion = ciudadinfo.poblacion
             self.nivel = ciudadinfo.nivel
@@ -92,7 +93,7 @@ class SpriteDato(pygame.sprite.Sprite):
         
         # El color indicará si es una ciudad aliada, enemiga o propia
         if self.display.jug == self.ciudad.propietario:
-            self.color = WHITE
+            self.color = BLUE
         elif self.ciudad.propietario == None:
             self.color = BLACK
         else:
@@ -112,14 +113,14 @@ class SpriteDato(pygame.sprite.Sprite):
         else:
             self.prop = self.font.render(f"J{self.ciudad.propietario+1}", 1, self.color)
         # Los mostramos por pantalla    
-        self.ventana.blit(self.pob, np.array(self.rect.bottomleft)+np.array((0,-15)))
-        self.ventana.blit(self.nivel, np.array(self.rect.topright)+np.array((-20,10)))
-        self.ventana.blit(self.prop, np.array(self.rect.topleft)+np.array((0,10)))
+        self.ventana.blit(self.pob, np.array(self.rect.bottomleft)+np.array((10,-20)))
+        self.ventana.blit(self.nivel, np.array(self.rect.topright)+np.array((-25,5)))
+        self.ventana.blit(self.prop, np.array(self.rect.topleft)+np.array((10,5)))
         
     def update(self):            
         # Actualizamos los textos
         if self.display.jug == self.ciudad.propietario:
-            self.color = WHITE
+            self.color = BLUE
         elif self.ciudad.propietario == None:
             self.color = BLACK
         else:
@@ -133,9 +134,10 @@ class SpriteDato(pygame.sprite.Sprite):
         else:
             self.prop = self.font.render(f"J{self.ciudad.propietario+1}", 1, self.color)
         # Los mostramos por pantalla
-        self.ventana.blit(self.pob, np.array(self.rect.bottomleft)+np.array((0,-15)))
-        self.ventana.blit(self.nivel, np.array(self.rect.topright)+np.array((-20,10)))
-        self.ventana.blit(self.prop, np.array(self.rect.topleft)+np.array((0,10)))
+        self.ventana.blit(self.pob, np.array(self.rect.bottomleft)+np.array((10,-20)))
+        self.ventana.blit(self.nivel, np.array(self.rect.topright)+np.array((-25,5)))
+        self.ventana.blit(self.prop, np.array(self.rect.topleft)+np.array((10,5)))
+        
         
 class SpriteN_tropas(pygame.sprite.Sprite):
     # Este texto indica el Modo de Desplazamiento seleccionado
@@ -223,7 +225,7 @@ class Display():
         # Crear grupo de sprites para las ciudades
         self.ventana.fill(WHITE) #Rellenamos el fondo de blanco
         self.background = pygame.image.load("PNGs/mapa.png")
-        #self.background = pygame.transform.smoothscale(self.background, (ANCHO_VENTANA, ALTO_VENTANA))
+        self.background = pygame.transform.smoothscale(self.background, (ANCHO_VENTANA, ALTO_VENTANA))
         self.sprites_ciudades = pygame.sprite.Group()
         self.sprites_datos= pygame.sprite.Group()
         self.sprites_movimientos = pygame.sprite.Group()
