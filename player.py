@@ -164,6 +164,7 @@ class SpriteN_tropas(pygame.sprite.Sprite):
             self.current = self.half
         elif mode == 3:
             self.current = self.full
+        
         self.ventana.blit(self.current, self.posicion+np.array((40,0)))
         
         
@@ -224,7 +225,7 @@ class Display():
         
         # Crear grupo de sprites para las ciudades
         self.ventana.fill(WHITE) #Rellenamos el fondo de blanco
-        self.background = pygame.image.load("PNGs/mapa.png")
+        self.background = pygame.image.load("PNGs/mapa.png") #Colocamos el fondo
         self.background = pygame.transform.smoothscale(self.background, (ANCHO_VENTANA, ALTO_VENTANA))
         self.sprites_ciudades = pygame.sprite.Group()
         self.sprites_datos= pygame.sprite.Group()
@@ -258,6 +259,7 @@ class Display():
         self.spriteN_tropas.update(self.mode)
 
     def draw(self):
+        #Se dibujan los sprites que hace falta
         self.sprites_ciudades.draw(self.ventana)
         self.sprites_datos.draw(self.ventana)
         self.sprites_movimientos.draw(self.ventana)
@@ -270,30 +272,30 @@ class Display():
         '''
         events=[]
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT: #Salir del juego
                 self.running=False
                 events.append('quit')
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 #Deteccion de pulsacion del raton
-                if pos == None:
+                if pos == None: #pos guarda el anterior clic del raton
                     pos = event.pos
                 else:
                     pos2 = event.pos
                     cid1=-1
                     cid2=-1
-                    for c in self.sprites_ciudades:
+                    for c in self.sprites_ciudades:#Se busca el id de las ciudades
                         if c.rect.collidepoint(pos):
                             cid1 = c.ciudad.id
                         if c.rect.collidepoint(pos2):
                             cid2 = c.ciudad.id
-                    if cid1!=-1 and cid2!=-1:
+                    if cid1!=-1 and cid2!=-1: #Si no hay ningun clic fuera de ciudades
                         events.append((self.jug, cid1, cid2, self.mode))
                         pos, pos2 = None, None
-                    elif cid1 == -1:
+                    elif cid1 == -1: #Si el primer clic es fuera
                         pos = pos2
                     else:
                         pos, pos2 = None, None
-            if event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN:#Cambio de modo
                 if event.unicode == '1':
                     self.mode = 1
                 elif event.unicode == '2':
